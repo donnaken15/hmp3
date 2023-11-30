@@ -1,39 +1,39 @@
-/* ***** BEGIN LICENSE BLOCK *****  
+/* ***** BEGIN LICENSE BLOCK *****
  * Source last modified: 2022-12-19, Maik Merten
- *   
- * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
- *       
- * The contents of this file, and the files included with this file, 
- * are subject to the current version of the RealNetworks Public 
- * Source License (the "RPSL") available at 
- * http://www.helixcommunity.org/content/rpsl unless you have licensed 
- * the file under the current version of the RealNetworks Community 
- * Source License (the "RCSL") available at 
- * http://www.helixcommunity.org/content/rcsl, in which case the RCSL 
- * will apply. You may also obtain the license terms directly from 
- * RealNetworks.  You may not use this file except in compliance with 
- * the RPSL or, if you have a valid RCSL with RealNetworks applicable 
- * to this file, the RCSL.  Please see the applicable RPSL or RCSL for 
- * the rights, obligations and limitations governing use of the 
- * contents of the file. 
- *   
- * This file is part of the Helix DNA Technology. RealNetworks is the 
- * developer of the Original Code and owns the copyrights in the 
- * portions it created. 
- *   
- * This file, and the files included with this file, is distributed 
- * and made available on an 'AS IS' basis, WITHOUT WARRANTY OF ANY 
- * KIND, EITHER EXPRESS OR IMPLIED, AND REALNETWORKS HEREBY DISCLAIMS 
- * ALL SUCH WARRANTIES, INCLUDING WITHOUT LIMITATION, ANY WARRANTIES 
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, QUIET 
- * ENJOYMENT OR NON-INFRINGEMENT. 
- *  
- * Technology Compatibility Kit Test Suite(s) Location:  
- *    http://www.helixcommunity.org/content/tck  
- *  
- * Contributor(s):  
- *   
- * ***** END LICENSE BLOCK ***** */  
+ *
+ * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.
+ *
+ * The contents of this file, and the files included with this file,
+ * are subject to the current version of the RealNetworks Public
+ * Source License (the "RPSL") available at
+ * http://www.helixcommunity.org/content/rpsl unless you have licensed
+ * the file under the current version of the RealNetworks Community
+ * Source License (the "RCSL") available at
+ * http://www.helixcommunity.org/content/rcsl, in which case the RCSL
+ * will apply. You may also obtain the license terms directly from
+ * RealNetworks.  You may not use this file except in compliance with
+ * the RPSL or, if you have a valid RCSL with RealNetworks applicable
+ * to this file, the RCSL.  Please see the applicable RPSL or RCSL for
+ * the rights, obligations and limitations governing use of the
+ * contents of the file.
+ *
+ * This file is part of the Helix DNA Technology. RealNetworks is the
+ * developer of the Original Code and owns the copyrights in the
+ * portions it created.
+ *
+ * This file, and the files included with this file, is distributed
+ * and made available on an 'AS IS' basis, WITHOUT WARRANTY OF ANY
+ * KIND, EITHER EXPRESS OR IMPLIED, AND REALNETWORKS HEREBY DISCLAIMS
+ * ALL SUCH WARRANTIES, INCLUDING WITHOUT LIMITATION, ANY WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, QUIET
+ * ENJOYMENT OR NON-INFRINGEMENT.
+ *
+ * Technology Compatibility Kit Test Suite(s) Location:
+ *    http://www.helixcommunity.org/content/tck
+ *
+ * Contributor(s):
+ *
+ * ***** END LICENSE BLOCK ***** */
 
 #ifndef _XHEAD_H_
 #define _XHEAD_H_
@@ -88,10 +88,10 @@ int XingHeaderBitrateIndex ( int h_mode, int bitrate) ;
 
 
 int XingHeader ( int samprate, int h_mode, int cr_bit, int original,
-                 int flags, int frames, int bs_bytes,
-                 int vbr_scale,
-                 unsigned char *toc, unsigned char *buf, unsigned char *buf20,
-                 unsigned char *buf20B, int nBitRateIndex );
+				 int flags, int frames, int bs_bytes,
+				 int vbr_scale,
+				 unsigned char *toc, unsigned char *buf, unsigned char *buf20,
+				 unsigned char *buf20B, int nBitRateIndex );
 // creates an mp3 frame that contains a Xing header
 // return  0 = fail or frame_bytes
 // input:
@@ -108,17 +108,17 @@ int XingHeader ( int samprate, int h_mode, int cr_bit, int original,
 //      bytes       number bytes in bitstream, including
 //                  the header frame, may be place holder, e.g. 0
 //      toc         pointer to caller supplied toc buffer,
-//                  may be NULL.  Use NULL for 1. no toc,  
+//                  may be NULL.  Use NULL for 1. no toc,
 //                  2. place holder  3. toc constructed
 //                  by XingHeaderTOC
 // output
 //      buf         buffer to place the mp3 frame
 
 int XingHeaderUpdate ( int frames, int bs_bytes,
-                       int vbr_scale,
-                       unsigned char *toc, unsigned char *buf,
-                       unsigned char *buf20, unsigned char *buf20B );
-// update the information in a previously created mp3 frame 
+					   int vbr_scale,
+					   unsigned char *toc, unsigned char *buf,
+					   unsigned char *buf20, unsigned char *buf20B );
+// update the information in a previously created mp3 frame
 // that contains a Xing header
 // return  0 = fail,  1 = success
 // input
@@ -126,19 +126,19 @@ int XingHeaderUpdate ( int frames, int bs_bytes,
 //      bytes       number bytes in bitstream, including
 //                  the header frame, may be place holder, e.g. 0
 //      toc         pointer to caller supplied toc buffer,
-//                  may be NULL.  Use NULL for 1. no toc,  
+//                  may be NULL.  Use NULL for 1. no toc,
 //                  2. toc constructed by XingHeaderTOC
 // input/output
 //      buf         buffer containing mp3 frame to update
 
 int XingHeaderUpdateInfo ( int frames, int bs_bytes,
-                       int vbr_scale,
-                       unsigned char *toc, unsigned char *buf,
-                       unsigned char *buf20, unsigned char *buf20B,
-                       unsigned long samples_audio,
-                       unsigned int bytes_mp3, unsigned int lowpass,
-                       unsigned int in_samplerate, unsigned short musiccrc);
-// Update the information in a previously created mp3 frame 
+					   int vbr_scale,
+					   unsigned char *toc, unsigned char *buf,
+					   unsigned char *buf20, unsigned char *buf20B,
+					   unsigned long samples_audio,
+					   unsigned int bytes_mp3, unsigned int lowpass,
+					   unsigned int in_samplerate, unsigned short musiccrc);
+// Update the information in a previously created mp3 frame
 // that contains a Xing header.
 // This version supports the LAME info header.
 // return  0 = fail,  1 = success
@@ -147,7 +147,7 @@ int XingHeaderUpdateInfo ( int frames, int bs_bytes,
 //      bytes       number bytes in bitstream, including
 //                  the header frame, may be place holder, e.g. 0
 //      toc         pointer to caller supplied toc buffer,
-//                  may be NULL.  Use NULL for 1. no toc,  
+//                  may be NULL.  Use NULL for 1. no toc,
 //                  2. toc constructed by XingHeaderTOC
 //      samples_audio number of actual audio samples
 //      bytes_mp3     size of MP3 file

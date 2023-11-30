@@ -1,38 +1,38 @@
-/* ***** BEGIN LICENSE BLOCK *****  
+/* ***** BEGIN LICENSE BLOCK *****
  * Source last modified: 2022-12-19, Maik Merten
- *   
- * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
- *       
- * The contents of this file, and the files included with this file, 
- * are subject to the current version of the RealNetworks Public 
- * Source License (the "RPSL") available at 
- * http://www.helixcommunity.org/content/rpsl unless you have licensed 
- * the file under the current version of the RealNetworks Community 
- * Source License (the "RCSL") available at 
- * http://www.helixcommunity.org/content/rcsl, in which case the RCSL 
- * will apply. You may also obtain the license terms directly from 
- * RealNetworks.  You may not use this file except in compliance with 
- * the RPSL or, if you have a valid RCSL with RealNetworks applicable 
- * to this file, the RCSL.  Please see the applicable RPSL or RCSL for 
- * the rights, obligations and limitations governing use of the 
- * contents of the file. 
- *   
- * This file is part of the Helix DNA Technology. RealNetworks is the 
- * developer of the Original Code and owns the copyrights in the 
- * portions it created. 
- *   
- * This file, and the files included with this file, is distributed 
- * and made available on an 'AS IS' basis, WITHOUT WARRANTY OF ANY 
- * KIND, EITHER EXPRESS OR IMPLIED, AND REALNETWORKS HEREBY DISCLAIMS 
- * ALL SUCH WARRANTIES, INCLUDING WITHOUT LIMITATION, ANY WARRANTIES 
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, QUIET 
- * ENJOYMENT OR NON-INFRINGEMENT. 
- *  
- * Technology Compatibility Kit Test Suite(s) Location:  
- *    http://www.helixcommunity.org/content/tck  
- *  
- * Contributor(s):  
- *   
+ *
+ * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.
+ *
+ * The contents of this file, and the files included with this file,
+ * are subject to the current version of the RealNetworks Public
+ * Source License (the "RPSL") available at
+ * http://www.helixcommunity.org/content/rpsl unless you have licensed
+ * the file under the current version of the RealNetworks Community
+ * Source License (the "RCSL") available at
+ * http://www.helixcommunity.org/content/rcsl, in which case the RCSL
+ * will apply. You may also obtain the license terms directly from
+ * RealNetworks.  You may not use this file except in compliance with
+ * the RPSL or, if you have a valid RCSL with RealNetworks applicable
+ * to this file, the RCSL.	Please see the applicable RPSL or RCSL for
+ * the rights, obligations and limitations governing use of the
+ * contents of the file.
+ *
+ * This file is part of the Helix DNA Technology. RealNetworks is the
+ * developer of the Original Code and owns the copyrights in the
+ * portions it created.
+ *
+ * This file, and the files included with this file, is distributed
+ * and made available on an 'AS IS' basis, WITHOUT WARRANTY OF ANY
+ * KIND, EITHER EXPRESS OR IMPLIED, AND REALNETWORKS HEREBY DISCLAIMS
+ * ALL SUCH WARRANTIES, INCLUDING WITHOUT LIMITATION, ANY WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, QUIET
+ * ENJOYMENT OR NON-INFRINGEMENT.
+ *
+ * Technology Compatibility Kit Test Suite(s) Location:
+ *	  http://www.helixcommunity.org/content/tck
+ *
+ * Contributor(s):
+ *
  * ***** END LICENSE BLOCK ***** */
 
 char versionstring[24] = "5.2.1, 2022-12-19";
@@ -41,9 +41,9 @@ char versionstring[24] = "5.2.1, 2022-12-19";
 #include <stdio.h>
 #include <float.h>
 #include <math.h>
-#include <fcntl.h>      /* file open flags */
-#include <sys/types.h>  /* someone wants for port */
-#include <sys/stat.h>   /* use forward slash for port */
+#include <fcntl.h>		/* file open flags */
+#include <sys/types.h>	/* someone wants for port */
+#include <sys/stat.h>	/* use forward slash for port */
 #include <time.h>
 #ifdef _MSC_VER
 #include <io.h> /* lseek MC C++ 4.1 */
@@ -53,10 +53,10 @@ char versionstring[24] = "5.2.1, 2022-12-19";
 #include <string.h>
 
 #include "port.h"
-#include "xhead.h"      /* Xing header */
-#include "pcmhpm.h"     // parse wave file header
+#include "xhead.h"		/* Xing header */
+#include "pcmhpm.h"		// parse wave file header
 
-#include "mp3enc.h"     //  Mp3Enc Class
+#include "mp3enc.h"		//	Mp3Enc Class
 
 #if defined(_WIN32) && defined(_M_IX86) && !defined(WINCE)
 /* timing test Pentium only */
@@ -66,15 +66,15 @@ char versionstring[24] = "5.2.1, 2022-12-19";
 
 /*---------------------------------------*/
 
-// mpeg_select:   0 = track, 1 = mpeg1,  2 = mpeg2  x=output_freq
+// mpeg_select:	  0 = track, 1 = mpeg1,	 2 = mpeg2	x=output_freq
 static int mpeg_select = 0;
 static int mono_convert = 0;
 static int XingHeadFlag = 0;
 static int display_flag = 1;
 static int ec_display_flag = 0;
 
-static char default_outfile[] = "TEST.MP3";
-static char default_file[] = "TEST.WAV";
+static char default_outfile[] = "";
+static char default_file[] = "";
 
 /*---- timing test Pentium only ---*/
 #ifdef TIME_TEST
@@ -101,9 +101,9 @@ double clock64bit()
 static double start, finish, dtime;
 #endif
 
-/*********  bitstream buffer */
+/*********	bitstream buffer */
 //#define BS_BUFBYTES  32000
-#define BS_BUFBYTES  (128*1024)
+#define BS_BUFBYTES	 (128*1024)
 static unsigned char *bs_buffer;
 static unsigned int bs_bufbytes;
 static unsigned int bs_trigger = ( BS_BUFBYTES - 2880 );
@@ -116,8 +116,8 @@ static FILE *handout = NULL;
 /* buffer defined in terms of short for pcm convert (short>16) */
 
 /********  pcm buffer ********/
-//#define PCM_BUFBYTES  (6*sizeof(short)*2304)  /* 6 stereo frames */
-#define PCM_BUFBYTES  (128*sizeof(short)*2304)  /* 128 stereo frames */
+//#define PCM_BUFBYTES	(6*sizeof(short)*2304)	/* 6 stereo frames */
+#define PCM_BUFBYTES  (128*sizeof(short)*2304)	/* 128 stereo frames */
 static unsigned char *pcm_buffer;
 static int pcm_bufbytes;
 static int pcm_bufptr;
@@ -130,6 +130,7 @@ int pcmhead ( FILE *handle, F_INFO * f_info );
 
 int get_mnr_adjust ( char *fname, int mnr[21] );
 
+void no_action_msg();
 int out_useage ( void );
 int print_ec ( E_CONTROL * ec );
 
@@ -142,52 +143,40 @@ main ( int argc, char *argv[] )
 	char *fileout;
 	E_CONTROL ec;
 	int frames;
-	fprintf (stderr, "\n hmp3 MPEG Layer III audio encoder %s"
-		"\n Utilizing the Helix MP3 encoder, Copyright 1995-2005 RealNetworks, Inc."
-		"\n"
-		"\n Usage:  hmp3 <input> <output> [options]"
-		"\n          <input> and/or <output> can be \"-\", which means stdin/stdout."
-		"\n"
-		"\n Example:"
-		"\n         hmp3 input.wav output.mp3"
-		"\n"
-		"\n Options:"
-		"\n           -Nnsbstereo -Sfilter_select -Aalgor_select"
-		"\n           -C -X -O"
-		"\n           -D -Qquick -Ffreq_limit -Ucpu_select -TXtest1"
-		"\n           -SBTshort_block_threshold -EC"
-		"\n           -h (detailed help)\n\n", versionstring );
+	fprintf (stderr,
+		" hmp3 MPEG Layer III audio encoder %s\n"
+		" Utilizing the Helix MP3 encoder, Copyright 1995-2005 RealNetworks, Inc.\n", versionstring );
 	filename = default_file;
 	fileout = default_outfile;
 
 	ec.mode = 1;
-	ec.bitrate = -1;    /* let encoder choose */
+	ec.bitrate = -1;	/* let encoder choose */
 	ec.samprate = 44100;
-	ec.nsbstereo = -1;  /* let encoder choose */
-	ec.filter_select = -1;      /* let encoder choose */
+	ec.nsbstereo = -1;	/* let encoder choose */
+	ec.filter_select = -1;		/* let encoder choose */
 	ec.nsb_limit = -1;
 	ec.freq_limit = 24000;
-	//ec.npass         = -1;         /* let encoder choose */
-	//ec.npred         = -1;         /* encoder chooses */
-	ec.cr_bit = 1;      /* copyright bit */
-	ec.original = 1;    /* original/copy bit */
+	//ec.npass		   = -1;		 /* let encoder choose */
+	//ec.npred		   = -1;		 /* encoder chooses */
+	ec.cr_bit = 1;		/* copyright bit */
+	ec.original = 1;	/* original/copy bit */
 	ec.layer = 3;
 	ec.hf_flag = 0;
 	ec.vbr_flag = 1;
-	ec.vbr_mnr = 50;    // each unit = 0.1 db or 10 mb
-	ec.vbr_br_limit = 160;      // bitrate limit
+	ec.vbr_mnr = 50;	// each unit = 0.1 db or 10 mb
+	ec.vbr_br_limit = 160;		// bitrate limit
 	ec.chan_add_f0 = 24000;
 	ec.chan_add_f1 = 24000;
-	ec.sparse_scale = -1;       // reserved, set to -1
-	ec.vbr_delta_mnr = 0;       // set 0 default
+	ec.sparse_scale = -1;		// reserved, set to -1
+	ec.vbr_delta_mnr = 0;		// set 0 default
 	ec.cpu_select = 0;
-	ec.quick = -1;      // -1 let encoder choose, 1 = fast acoustic model
-	ec.test1 = -1;      // set -1 for default, test reserved 6 or 8 seems best, Neal says 6
-	ec.test2 = 0;       // reserved, set to 0
-	ec.test3 = 0;       // reserved, set to 0
+	ec.quick = -1;		// -1 let encoder choose, 1 = fast acoustic model
+	ec.test1 = -1;		// set -1 for default, test reserved 6 or 8 seems best, Neal says 6
+	ec.test2 = 0;		// reserved, set to 0
+	ec.test3 = 0;		// reserved, set to 0
 	ec.short_block_threshold = 700;
 	for ( i = 0; i < 21; i++ )
-		ec.mnr_adjust[i] = 0;   /* special, set 0 default */
+		ec.mnr_adjust[i] = 0;	/* special, set 0 default */
 
 	mpeg_select = 0;
 	XingHeadFlag = (3 | INFOTAG_FLAG);	// write Xing header and info tag by default
@@ -226,13 +215,13 @@ main ( int argc, char *argv[] )
 			case 'H':
 				if ( ( argv[i][2] == 'f' ) || ( argv[i][2] == 'F' ) )
 				{
-					//ec.hf_flag  = 1;   // ms Layer III high freq
-					//ec.hf_flag  = 3;   // ms+stereo+mono Layer III high freq
+					//ec.hf_flag  = 1;	 // ms Layer III high freq
+					//ec.hf_flag  = 3;	 // ms+stereo+mono Layer III high freq
 					ec.hf_flag = 1 | atoi ( argv[i] + 3 );
 				}
 				else
 				{
-					out_useage (  );        // help
+					out_useage (  );		// help
 					return 0;
 				}
 			break;
@@ -255,7 +244,7 @@ main ( int argc, char *argv[] )
 			case 'x':
 			case 'X':
 				XingHeadFlag = atoi ( argv[i] + 2 );
- 				// TOC also needs Xing header bit enabled
+				// TOC also needs Xing header bit enabled
 				if(XingHeadFlag == 2) XingHeadFlag = 3;
 			break;
 
@@ -265,12 +254,12 @@ main ( int argc, char *argv[] )
 			break;
 
 			case 'c':
-			case 'C':       // copyright bit setting
+			case 'C':		// copyright bit setting
 				ec.cr_bit = atoi ( argv[i] + 2 );
 			break;
 
 			case 'o':
-			case 'O':       // original/copy bit setting, 1=original
+			case 'O':		// original/copy bit setting, 1=original
 				ec.original = atoi ( argv[i] + 2 );
 			break;
 
@@ -337,7 +326,7 @@ main ( int argc, char *argv[] )
 
 			case 'v':
 			case 'V':
-				ec.vbr_flag = 1;    // Layer III vbr
+				ec.vbr_flag = 1;	// Layer III vbr
 				ec.vbr_mnr = atoi ( argv[i] + 2 );
 			break;
 
@@ -369,7 +358,7 @@ main ( int argc, char *argv[] )
 	else
 		ec.vbr_flag = 0;
 
-	fprintf (stderr, "\n\n  <press any key to stop encoder>" );
+	//fprintf (stderr, "\n\n  <press any key to stop encoder>" );
 
 /******** encode *********/
 #ifdef ETIME_TEST
@@ -382,7 +371,7 @@ main ( int argc, char *argv[] )
 #ifdef ETIME_TEST
 		finish = clock64bit (  );
 		dtime = ( finish - start );
-		fprintf (stderr, "\n elapsed time seconds = %8.3lf       ms per frame = %8.3lf",
+		fprintf (stderr, "\n elapsed time seconds = %8.3lf		 ms per frame = %8.3lf",
 			dtime, 1000.0 * dtime / frames );
 #endif
 
@@ -426,15 +415,15 @@ ff_encode ( char *filename, char *fileout, E_CONTROL * ec0 )
 	long audio_bytes = 0;
 	int head_bytes;
 	int head_flags;
-    unsigned short head_musiccrc = 0x0000;
+	unsigned short head_musiccrc = 0x0000;
 	int frames;
 	int frames_expected;
 	INT_PAIR fb;
 	int toc_counter;
 	int vbr_scale;
 	CMp3Enc Encode;
-	int nbytes_out[2];  // test reformatted frames, num bytes in each frame
-	unsigned char packet_buf[2000];     // reformatted frame buffer, test
+	int nbytes_out[2];	// test reformatted frames, num bytes in each frame
+	unsigned char packet_buf[2000];		// reformatted frame buffer, test
 	int infilesize;
 	bool ispad=false;
 
@@ -445,8 +434,8 @@ ff_encode ( char *filename, char *fileout, E_CONTROL * ec0 )
 	ec = *ec0;
 
 /*-----------------------*/
-	fprintf (stderr, "\n PCM input file: %s", filename );
-	fprintf (stderr, "\nMPEG ouput file: %s", fileout );
+	//fprintf (stderr, "\n PCM input file: %s", filename );
+	//fprintf (stderr, "\nMPEG ouput file: %s", fileout );
 
 /*-----------------------*/
 	u = 0;
@@ -518,7 +507,7 @@ ff_encode ( char *filename, char *fileout, E_CONTROL * ec0 )
 		goto abort;
 	}
 
-	fprintf (stderr, "\n pcm file:  channels = %d  bits = %d,  rate = %d  type = %d",
+	fprintf (stderr, "\n pcm file:	channels = %d  bits = %d,  rate = %d  type = %d",
 		fi.channels, fi.bits, fi.rate, fi.type );
 
 	/*
@@ -527,14 +516,14 @@ ff_encode ( char *filename, char *fileout, E_CONTROL * ec0 )
 
 	unsupported = 0 ;
 	if (fi.channels < 1 || fi.channels > 2 ||
-		fi.rate < 8000  || fi.rate > 480000 || fi.type != 0)
+		fi.rate < 8000	|| fi.rate > 480000 || fi.type != 0)
 	{
 		unsupported = 1;
 	}
 
 	switch (fi.bits)
 	{
-		case 8:  input_type = 1 ; break ;
+		case 8:	 input_type = 1 ; break ;
 		case 16: input_type = 0 ; break ;
 		default: unsupported = 1 ; break ;
 	}
@@ -597,19 +586,19 @@ ff_encode ( char *filename, char *fileout, E_CONTROL * ec0 )
 	Encode.L3_audio_encode_info_string ( info_string );
 	fprintf (stderr, "\n %s", info_string );
 
-	Encode.L3_audio_encode_info_ec ( &ec );    /* get actual encode settings */
+	Encode.L3_audio_encode_info_ec ( &ec );	   /* get actual encode settings */
 
 	if(ec_display_flag)
-		print_ec( &ec);  
+		print_ec( &ec);
 
 	if ( XingHeadFlag )
 	{
 		/* get actual encode settings */
 		Encode.L3_audio_encode_info_head ( &head );
-		
+
 		if ( ec.vbr_flag )
 			vbr_scale = ec.vbr_mnr;
-		
+
 		head_bytes = XingHeader ( ec.samprate, head.mode,
 			ec.cr_bit, ec.original, head_flags, 0, 0,
 			vbr_scale, NULL, bs_buffer + bs_bufbytes,
@@ -618,15 +607,15 @@ ff_encode ( char *filename, char *fileout, E_CONTROL * ec0 )
 		bs_bufbytes += head_bytes;
 		out_bytes += head_bytes;
 
-        // flush buffer with Xing header now, so it won't interfere with
-        // calculating MusicCRC later on.
-        nwrite = fwrite ( bs_buffer, 1, bs_bufbytes, handout );
-        if ( nwrite != bs_bufbytes )
+		// flush buffer with Xing header now, so it won't interfere with
+		// calculating MusicCRC later on.
+		nwrite = fwrite ( bs_buffer, 1, bs_bufbytes, handout );
+		if ( nwrite != bs_bufbytes )
 		{
-            fprintf (stderr, "\n FILE WRITE ERROR" );
-            goto abort;
+			fprintf (stderr, "\n FILE WRITE ERROR" );
+			goto abort;
 		}
-        bs_bufbytes = 0;
+		bs_bufbytes = 0;
 	}
 
 	fprintf (stderr, "\n" );
@@ -636,8 +625,8 @@ ff_encode ( char *filename, char *fileout, E_CONTROL * ec0 )
 	*/
 
 	fprintf (stderr, "\n-------------------------------------------------------------------------------");
-	fprintf (stderr, "\n  Frames  |  Bytes In  /  Bytes Out | Progress | Current/Average Bitrate");
-	fprintf (stderr, "\n   None   |    None    /    None    |   None   | None");
+	fprintf (stderr, "\n  Frames  |	 Bytes In  /  Bytes Out | Progress | Current/Average Bitrate");
+	fprintf (stderr, "\n   None	  |	   None	   /	None	|	None   | None");
 
 	for ( u = 1;; u++ )
 	{
@@ -653,7 +642,7 @@ ff_encode ( char *filename, char *fileout, E_CONTROL * ec0 )
 				audio_bytes += nread;
 
 			if ( nread < 0 )
-				break;  // read error
+				break;	// read error
 
 			if(feof(handle)&&!ispad)
 			{
@@ -669,22 +658,22 @@ ff_encode ( char *filename, char *fileout, E_CONTROL * ec0 )
 			pcm_bufptr = 0;
 
 			if ( pcm_bufbytes < bytes_in_init )
-				break;  /* eof */
+				break;	/* eof */
 		}
 #ifdef TIME_TEST
-		set_clock (  );
+		set_clock (	 );
 #endif
 		x = Encode.MP3_audio_encode ( pcm_buffer + pcm_bufptr,
 						bs_buffer + bs_bufbytes );
 #ifdef TIME_TEST
-		get_clock (  );
+		get_clock (	 );
 		tot_cycles += global_cycles;
 		tot_cycles_n++;
 #endif
 		frames_expected++;
 		pcm_bufbytes -= x.in_bytes;
-		pcm_bufptr   += x.in_bytes;
-	        bs_bufbytes  += x.out_bytes;
+		pcm_bufptr	 += x.in_bytes;
+			bs_bufbytes	 += x.out_bytes;
 
 		if ( bs_bufbytes > bs_trigger )
 		{
@@ -694,7 +683,7 @@ ff_encode ( char *filename, char *fileout, E_CONTROL * ec0 )
 				fprintf (stderr, "\n FILE WRITE ERROR" );
 				break;
 			}
-            head_musiccrc = XingHeaderUpdateCRC(head_musiccrc, bs_buffer, bs_bufbytes);
+			head_musiccrc = XingHeaderUpdateCRC(head_musiccrc, bs_buffer, bs_bufbytes);
 
 			bs_bufbytes = 0;
 		}
@@ -705,13 +694,13 @@ ff_encode ( char *filename, char *fileout, E_CONTROL * ec0 )
 		/*
 		 * make entries into the TOC in the Xing Header
 		 */
-	
+
 		if ( head_flags & TOC_FLAG )
 		{
 			toc_counter--;
 			if ( toc_counter <= 0 )
 			{
-				fb = Encode.L3_audio_encode_get_frames_bytes (  );
+				fb = Encode.L3_audio_encode_get_frames_bytes (	);
 				toc_counter = XingHeaderTOC ( fb.a + 1, fb.b + head_bytes );
 			}
 		}
@@ -728,10 +717,10 @@ ff_encode ( char *filename, char *fileout, E_CONTROL * ec0 )
 		 */
 		if ( ( u & 127 ) == display_flag )
 		{
-			fprintf (stderr, "\r  %6d  | %10d / %10d |   %3d%%   | %6.2f / %6.2f Kbps",
+			fprintf (stderr, "\r  %6d  | %10d / %10d |	 %3d%%	 | %6.2f / %6.2f Kbps",
 				Encode.L3_audio_encode_get_frames() + 1, in_bytes, out_bytes, (int)(in_bytes*100./infilesize),
-				Encode.L3_audio_encode_get_bitrate2_float (  ),
-				Encode.L3_audio_encode_get_bitrate_float (  ) );
+				Encode.L3_audio_encode_get_bitrate2_float (	 ),
+				Encode.L3_audio_encode_get_bitrate_float (	) );
 			fflush(stderr) ;
 		}
 	}
@@ -747,7 +736,7 @@ ff_encode ( char *filename, char *fileout, E_CONTROL * ec0 )
 			fprintf (stderr, "\n FILE WRITE ERROR" );
 			goto abort;
 		}
-        head_musiccrc = XingHeaderUpdateCRC(head_musiccrc, bs_buffer, bs_bufbytes);
+		head_musiccrc = XingHeaderUpdateCRC(head_musiccrc, bs_buffer, bs_bufbytes);
 	}
 
 	// Due to internal housekeeping, the encoder may not actually emit
@@ -762,7 +751,7 @@ ff_encode ( char *filename, char *fileout, E_CONTROL * ec0 )
 
 	while(Encode.L3_audio_encode_get_frames() < frames_expected) {
 		x = Encode.MP3_audio_encode (pcm_buffer, bs_buffer);
-		bs_bufbytes  = x.out_bytes;
+		bs_bufbytes	 = x.out_bytes;
 		out_bytes += x.out_bytes;
 		nwrite = fwrite ( bs_buffer, 1, bs_bufbytes, handout );
 		if ( nwrite != bs_bufbytes )
@@ -770,13 +759,13 @@ ff_encode ( char *filename, char *fileout, E_CONTROL * ec0 )
 			fprintf (stderr, "\n FILE WRITE ERROR" );
 			goto abort;
 		}
-        head_musiccrc = XingHeaderUpdateCRC(head_musiccrc, bs_buffer, bs_bufbytes);
+		head_musiccrc = XingHeaderUpdateCRC(head_musiccrc, bs_buffer, bs_bufbytes);
 	}
 
-	fprintf (stderr, "\r  %6d  | %10d / %10d |   %3d%%   | %6.2f / %6.2f  Kbps",
+	fprintf (stderr, "\r  %6d  | %10d / %10d |	 %3d%%	 | %6.2f / %6.2f  Kbps",
 		Encode.L3_audio_encode_get_frames() + 1, in_bytes, out_bytes, (int)(in_bytes*100./infilesize),
-		Encode.L3_audio_encode_get_bitrate2_float (  ),
-		Encode.L3_audio_encode_get_bitrate_float (  ) );
+		Encode.L3_audio_encode_get_bitrate2_float (	 ),
+		Encode.L3_audio_encode_get_bitrate_float (	) );
 	fprintf (stderr, "\n-------------------------------------------------------------------------------");
 	fprintf (stderr, "\n Compress Ratio %3.6f%%", out_bytes*100./infilesize );
 	//printf(" %d", Encode.L3_audio_encode_get_frames() ); // actual frames in output
@@ -807,18 +796,22 @@ ff_encode ( char *filename, char *fileout, E_CONTROL * ec0 )
 	/*------- optional info display ----*/
 	//audio_encode_info_display();
 	//audio_encode_info_display2();
-	
+
 	//Encode.out_stats();  // test test test
-	
+
 	abort:
 	delete[] bs_buffer;
 	delete[] pcm_buffer;
 	if(handle != NULL)
 		fclose ( handle );
+	else
+		no_action_msg();
 	if(handout != NULL)
 		fclose ( handout );
-	while ( kbhit (  ) )
-		getch (  );     /* purge key board buffer */
+	else
+		no_action_msg();
+	while ( kbhit (	 ) )
+		getch (	 );		/* purge key board buffer */
 	return Encode.L3_audio_encode_get_frames() + 1;
 }
 
@@ -829,69 +822,87 @@ ff_encode ( char *filename, char *fileout, E_CONTROL * ec0 )
 int pcmhead ( FILE *handle, F_INFO * f_info )
 {
 	int nread;
-	
+
 	unsigned char buf[256]; /* usually big enough */
-	
+
 	nread = fread ( buf,1, sizeof ( buf ) ,handle);
-	
+
 	if ( nread <= 0 )
 		return 0;
-	
+
 	nread = pcmhead_mem ( buf, nread, f_info );
 	if ( !nread )
 		return 0;
-	
+
 	fseek ( handle, nread, 0 ); /* position at beginning of data */
 	return 1;
 }
 
+void no_action_msg()
+{
+	fprintf (stderr,
+		"\n Usage:	hmp3 <input> <output> [options]"
+		"\n			 <input> and/or <output> can be \"-\", which means stdin/stdout."
+		"\n"
+		"\n Example:"
+		"\n			hmp3 input.wav output.mp3"
+		"\n"
+		"\n Options:"
+		"\n			  -Nnsbstereo -Sfilter_select -Aalgor_select"
+		"\n			  -C -X -O"
+		"\n			  -D -Qquick -Ffreq_limit -Ucpu_select -TXtest1"
+		"\n			  -SBTshort_block_threshold -EC"
+		"\n			  -h (detailed help)\n\n" );
+}
+
 /*-------------------------------------------------------------*/
-/* help text                                                   */
+/* help text												   */
 /*-------------------------------------------------------------*/
 int
 out_useage (  )
 {
+	no_action_msg();
 	fprintf (stderr,
 	//"\nlayer"
-	//"\n        layer = 1 for Layer I, = 2 for Layer II, default = Layer III"
+	//"\n		 layer = 1 for Layer I, = 2 for Layer II, default = Layer III"
 	"\nB[bitrate]Per channel bitrate in kbits per second."
-	"\n          Encoder will choose if -1. (default)"
-	"\nM[mode]   Select encoding mode: mode-0 stereo=0 mode-1 stereo=1 dual=2 mono=3."
+	"\n			 Encoder will choose if -1. (default)"
+	"\nM[mode]	 Select encoding mode: mode-0 stereo=0 mode-1 stereo=1 dual=2 mono=3."
 	"\nV[vbr_scale]"
-	"\n          Selects vbr encoding and vbr scale.  Valid values are 0-150."
-	//"\nhf        Enables high frequency encoding (mode-1 stereo only)"
-	//"\nhf2       Enables high frequency encoding (all modes)"
+	"\n			 Selects vbr encoding and vbr scale.  Valid values are 0-150."
+	//"\nhf		   Enables high frequency encoding (mode-1 stereo only)"
+	//"\nhf2	   Enables high frequency encoding (all modes)"
 	"\nN[nsbstereo]"
-	"\n          Applies to mode-1 stereo mode only.  Number of subbands to"
-	"\n          encode in independent stereo.  Valid values are 4, 8, 12, and 16."
-	"\n          The encoder limits choices to valid values.  The encoder"
-	"\n          will make a default selection if nsbstereo = -1."
-	"\n          Valid values for Layer III are 3-32."
+	"\n			 Applies to mode-1 stereo mode only.  Number of subbands to"
+	"\n			 encode in independent stereo.	Valid values are 4, 8, 12, and 16."
+	"\n			 The encoder limits choices to valid values.  The encoder"
+	"\n			 will make a default selection if nsbstereo = -1."
+	"\n			 Valid values for Layer III are 3-32."
 	"\nS[filter_select]"
-	"\n          Selects input filtering:  no filter = 0,  DC blocking filter = 1"
-	"\n          if filter = -1 the encoder will choose (default)"
-	"\nA[algor_select]  0 = track input, 1=MPEG-1, 2=MPEG-2, xxxxx=sample_rate"
-	"\nC         c0 clear copyright bit, c1 set copyright bit"
-	"\nO         o0=copy, o1=original"
-	"\nX         -X1 MPEG compatible Xing header, -X2 with TOC (default), -X0 disable"
-	"\nU         u0=generic, u2=Pentium III(SSE)"
-	"\nQ         disable_taper, q0 = base, q1 = fast, q-1 = encoder chooses"
-	"\nD         Don't display progress"
-	"\nF         Limits encoded subbands to specified frequency, f24000"
-	"\nHF        high frequency encoding. Allows coding above 16000Hz."
-	"\n          hf1=(mode-1 granules), hf2=(all granules), -B96 or -V80 needed"
-	"\nTX        tx6, test reserved 6 or 8 seems best (startup_adjustNT1B)"
-	"\n            ** v5.0  TEST 1  as of 8/15/00"
-	"\n            ** v5.0  TEST 2  8/18/00"
-	"\n            ** v5.0  TEST 3  default tx6 (prev = tx8)"
-	"\n            ** v5.0  TEST 4  mods to short fnc_sf, ms corr. hf enable > 80"
-	"\n            ** v5.0  TEST 5  fix odd npart, ix clear"
-	"\n            ** v5.0  TEST 6  add reformatted frames"
-	"\n            ** v5.0  TEST 7  drop V4 amod"
-	"\n            ** v5.1  2005.08.09 (see CVS log for details)"
+	"\n			 Selects input filtering:  no filter = 0,  DC blocking filter = 1"
+	"\n			 if filter = -1 the encoder will choose (default)"
+	"\nA[algor_select]	0 = track input, 1=MPEG-1, 2=MPEG-2, xxxxx=sample_rate"
+	"\nC		 c0 clear copyright bit, c1 set copyright bit"
+	"\nO		 o0=copy, o1=original"
+	"\nX		 -X1 MPEG compatible Xing header, -X2 with TOC (default), -X0 disable"
+	"\nU		 u0=generic, u2=Pentium III(SSE)"
+	"\nQ		 disable_taper, q0 = base, q1 = fast, q-1 = encoder chooses"
+	"\nD		 Don't display progress"
+	"\nF		 Limits encoded subbands to specified frequency, f24000"
+	"\nHF		 high frequency encoding. Allows coding above 16000Hz."
+	"\n			 hf1=(mode-1 granules), hf2=(all granules), -B96 or -V80 needed"
+	"\nTX		 tx6, test reserved 6 or 8 seems best (startup_adjustNT1B)"
+	"\n			   ** v5.0	TEST 1	as of 8/15/00"
+	"\n			   ** v5.0	TEST 2	8/18/00"
+	"\n			   ** v5.0	TEST 3	default tx6 (prev = tx8)"
+	"\n			   ** v5.0	TEST 4	mods to short fnc_sf, ms corr. hf enable > 80"
+	"\n			   ** v5.0	TEST 5	fix odd npart, ix clear"
+	"\n			   ** v5.0	TEST 6	add reformatted frames"
+	"\n			   ** v5.0	TEST 7	drop V4 amod"
+	"\n			   ** v5.1	2005.08.09 (see CVS log for details)"
 	"\nSBT[short_block_threshold]"
-	"\n          short_block_threshold default = 700"
-	"\nEC        Display Encoder Setting\n" );
+	"\n			 short_block_threshold default = 700"
+	"\nEC		 Display Encoder Setting\n" );
 
 	return 0;
 }
@@ -902,36 +913,38 @@ out_useage (  )
 int
 print_ec ( E_CONTROL * ec )
 {
+	#if 0
 	fprintf (stderr, "\n-------------------------------------------------------------------------------");
-	fprintf (stderr, "\nec->layer =         %d", ec->layer );
-	fprintf (stderr, "\t\t\tec->mode =          %d", ec->mode );
-	fprintf (stderr, "\nec->bitrate =       %d", ec->bitrate );
-	fprintf (stderr, "\t\t\tec->samprate =      %d", ec->samprate );
-	fprintf (stderr, "\nec->nsbstereo =     %d", ec->nsbstereo );
-	fprintf (stderr, "\t\t\tec->freq_limit =    %d", ec->freq_limit );
+	fprintf (stderr, "\nec->layer =			%d", ec->layer );
+	fprintf (stderr, "\t\t\tec->mode =			%d", ec->mode );
+	fprintf (stderr, "\nec->bitrate =		%d", ec->bitrate );
+	fprintf (stderr, "\t\t\tec->samprate =		%d", ec->samprate );
+	fprintf (stderr, "\nec->nsbstereo =		%d", ec->nsbstereo );
+	fprintf (stderr, "\t\t\tec->freq_limit =	%d", ec->freq_limit );
 	fprintf (stderr, "\nec->filter_select = %d", ec->filter_select );
-	fprintf (stderr, "\t\t\tec->nsb_limit =     %d", ec->nsb_limit );
-	fprintf (stderr, "\nec->cr_bit =        %d", ec->cr_bit );
-	fprintf (stderr, "\t\t\tec->original =      %d", ec->original );
-	fprintf (stderr, "\nec->hf_flag =       %d", ec->hf_flag );
-	fprintf (stderr, "\t\t\tec->vbr_flag =      %d", ec->vbr_flag );
-	fprintf (stderr, "\nec->vbr_mnr =       %d", ec->vbr_mnr );
-	fprintf (stderr, "\t\t\tec->vbr_br_limit =  %d", ec->vbr_br_limit );
-	fprintf (stderr, "\nec->sparse_scale =  %d", ec->sparse_scale );
-	fprintf (stderr, "\t\t\tec->chan_add_f0 =   %d", ec->chan_add_f0 );
+	fprintf (stderr, "\t\t\tec->nsb_limit =		%d", ec->nsb_limit );
+	fprintf (stderr, "\nec->cr_bit =		%d", ec->cr_bit );
+	fprintf (stderr, "\t\t\tec->original =		%d", ec->original );
+	fprintf (stderr, "\nec->hf_flag =		%d", ec->hf_flag );
+	fprintf (stderr, "\t\t\tec->vbr_flag =		%d", ec->vbr_flag );
+	fprintf (stderr, "\nec->vbr_mnr =		%d", ec->vbr_mnr );
+	fprintf (stderr, "\t\t\tec->vbr_br_limit =	%d", ec->vbr_br_limit );
+	fprintf (stderr, "\nec->sparse_scale =	%d", ec->sparse_scale );
+	fprintf (stderr, "\t\t\tec->chan_add_f0 =	%d", ec->chan_add_f0 );
 	fprintf (stderr, "\nec->vbr_delta_mnr = %d", ec->vbr_delta_mnr );
-	fprintf (stderr, "\t\t\tec->chan_add_f1 =   %d", ec->chan_add_f1 );
-	fprintf (stderr, "\nec->quick =         %d", ec->quick );
-	fprintf (stderr, "\t\t\tec->cpu_select =    %d", ec->cpu_select );
-	fprintf (stderr, "\nec->test1 =         %d", ec->test1 );
+	fprintf (stderr, "\t\t\tec->chan_add_f1 =	%d", ec->chan_add_f1 );
+	fprintf (stderr, "\nec->quick =			%d", ec->quick );
+	fprintf (stderr, "\t\t\tec->cpu_select =	%d", ec->cpu_select );
+	fprintf (stderr, "\nec->test1 =			%d", ec->test1 );
 	fprintf (stderr, "\t\t\tec->short_block_threshold = %d", ec->short_block_threshold );
 	fprintf (stderr, "\n-------------------------------------------------------------------------------");
+	#endif
 
 	return 0;
 }
 
 /*-------------------------------------------------------------*/
-/* test function used for tuning                               */
+/* test function used for tuning							   */
 /*-------------------------------------------------------------*/
 int
 get_mnr_adjust ( char *fname, int mnr[21] )

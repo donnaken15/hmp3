@@ -1,38 +1,38 @@
-/* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: $Id: pow34.c,v 1.1 2005/07/13 17:22:20 rggammon Exp $ 
- *   
- * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
- *       
- * The contents of this file, and the files included with this file, 
- * are subject to the current version of the RealNetworks Public 
- * Source License (the "RPSL") available at 
- * http://www.helixcommunity.org/content/rpsl unless you have licensed 
- * the file under the current version of the RealNetworks Community 
- * Source License (the "RCSL") available at 
- * http://www.helixcommunity.org/content/rcsl, in which case the RCSL 
- * will apply. You may also obtain the license terms directly from 
- * RealNetworks.  You may not use this file except in compliance with 
- * the RPSL or, if you have a valid RCSL with RealNetworks applicable 
- * to this file, the RCSL.  Please see the applicable RPSL or RCSL for 
- * the rights, obligations and limitations governing use of the 
- * contents of the file. 
- *   
- * This file is part of the Helix DNA Technology. RealNetworks is the 
- * developer of the Original Code and owns the copyrights in the 
- * portions it created. 
- *   
- * This file, and the files included with this file, is distributed 
- * and made available on an 'AS IS' basis, WITHOUT WARRANTY OF ANY 
- * KIND, EITHER EXPRESS OR IMPLIED, AND REALNETWORKS HEREBY DISCLAIMS 
- * ALL SUCH WARRANTIES, INCLUDING WITHOUT LIMITATION, ANY WARRANTIES 
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, QUIET 
- * ENJOYMENT OR NON-INFRINGEMENT. 
- *  
- * Technology Compatibility Kit Test Suite(s) Location:  
- *    http://www.helixcommunity.org/content/tck  
- *  
- * Contributor(s):  
- *   
+/* ***** BEGIN LICENSE BLOCK *****
+ * Source last modified: $Id: pow34.c,v 1.1 2005/07/13 17:22:20 rggammon Exp $
+ *
+ * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.
+ *
+ * The contents of this file, and the files included with this file,
+ * are subject to the current version of the RealNetworks Public
+ * Source License (the "RPSL") available at
+ * http://www.helixcommunity.org/content/rpsl unless you have licensed
+ * the file under the current version of the RealNetworks Community
+ * Source License (the "RCSL") available at
+ * http://www.helixcommunity.org/content/rcsl, in which case the RCSL
+ * will apply. You may also obtain the license terms directly from
+ * RealNetworks.  You may not use this file except in compliance with
+ * the RPSL or, if you have a valid RCSL with RealNetworks applicable
+ * to this file, the RCSL.  Please see the applicable RPSL or RCSL for
+ * the rights, obligations and limitations governing use of the
+ * contents of the file.
+ *
+ * This file is part of the Helix DNA Technology. RealNetworks is the
+ * developer of the Original Code and owns the copyrights in the
+ * portions it created.
+ *
+ * This file, and the files included with this file, is distributed
+ * and made available on an 'AS IS' basis, WITHOUT WARRANTY OF ANY
+ * KIND, EITHER EXPRESS OR IMPLIED, AND REALNETWORKS HEREBY DISCLAIMS
+ * ALL SUCH WARRANTIES, INCLUDING WITHOUT LIMITATION, ANY WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, QUIET
+ * ENJOYMENT OR NON-INFRINGEMENT.
+ *
+ * Technology Compatibility Kit Test Suite(s) Location:
+ *    http://www.helixcommunity.org/content/tck
+ *
+ * Contributor(s):
+ *
  * ***** END LICENSE BLOCK ***** */
 
 #include <stdlib.h>
@@ -124,34 +124,34 @@ fpow34 ( float x )
 {
 //return (float)pow(x, 0.75);
 //return (float)sqrt(sqrt(x*x*x));
-    return ( float ) sqrt ( x * sqrt ( x ) );
+	return ( float ) sqrt ( x * sqrt ( x ) );
 }
 
 /*------------------------------------------------------------------*/
 void
 vect_fpow34 ( const float x[], float y[], int n )
 {
-    int i;
+	int i;
 
 //for(i=0;i<n;i++) y[i] = (float)pow(x[i], 0.75);
 //for(i=0;i<n;i++) y[i] = (float)sqrt(sqrt(x[i]*x[i]*x[i]));
 #ifndef IEEE_FLOAT
-    for ( i = 0; i < n; i++ )
-        y[i] = ( float ) sqrt ( x[i] * sqrt ( x[i] ) );
+	for ( i = 0; i < n; i++ )
+		y[i] = ( float ) sqrt ( x[i] * sqrt ( x[i] ) );
 #else
-    /* compute fabs(y)**0.75. max error relative aprox 0.5e-4 */
-    /* modelled after pow34.asm */
+	/* compute fabs(y)**0.75. max error relative aprox 0.5e-4 */
+	/* modelled after pow34.asm */
 
-    const unsigned int* px = (const unsigned int*)x ;
-    for (i = 0 ; i < n ; i++)
-    {
-        union { unsigned int i; float f;} mant = {(px[i] & 0x7FFFFFUL) | (127UL << 23)} ;
-        unsigned int exponent = px[i] >> 19 ;
-        unsigned int e2 = exponent >> (23-19) ;
-        exponent &= 15 ;
+	const unsigned int* px = (const unsigned int*)x ;
+	for (i = 0 ; i < n ; i++)
+	{
+		union { unsigned int i; float f;} mant = {(px[i] & 0x7FFFFFUL) | (127UL << 23)} ;
+		unsigned int exponent = px[i] >> 19 ;
+		unsigned int e2 = exponent >> (23-19) ;
+		exponent &= 15 ;
 
-        y[i] = (mant.f * ab[2*exponent + 1].f + ab[2*exponent].f) * e34[e2].f ;
-    }
+		y[i] = (mant.f * ab[2*exponent + 1].f + ab[2*exponent].f) * e34[e2].f ;
+	}
 #endif
 }
 
@@ -160,28 +160,28 @@ float
 vect_fmax ( const float x[], int n )  // HX_MAX(x[i])  xmax >= 0.0
 {
 #ifndef IEEE_FLOAT
-    int i;
-    float xmax;
+	int i;
+	float xmax;
 
-    xmax = 0.0f;
-    for ( i = 0; i < n; i++ )
-        if ( x[i] > xmax )
-            xmax = x[i];
-    return xmax;
+	xmax = 0.0f;
+	for ( i = 0; i < n; i++ )
+		if ( x[i] > xmax )
+			xmax = x[i];
+	return xmax;
 #else
-    /* reinterpret floating point as integer and compare. */
-    int i;
-    signed int xmax = 0 ;
-    union {signed int i; float f;} u ;
+	/* reinterpret floating point as integer and compare. */
+	int i;
+	signed int xmax = 0 ;
+	union {signed int i; float f;} u ;
 
-    signed int *p = (signed int *)x ;
+	signed int *p = (signed int *)x ;
 
-    for ( i = 0; i < n; i++ )
-        if ( p[i] > xmax )
-            xmax = p[i];
-    u.i = xmax ;
+	for ( i = 0; i < n; i++ )
+		if ( p[i] > xmax )
+			xmax = p[i];
+	u.i = xmax ;
 
-    return u.f;
+	return u.f;
 #endif
 }
 

@@ -9,8 +9,8 @@
 # build directories for release, debug and profiling
 DIR_BUILDS=builds
 DIR_REL=$(DIR_BUILDS)/release
-DIR_DEB=$(DIR_BUILDS)/debug
-DIR_PRF=$(DIR_BUILDS)/profile
+#DIR_DEB=$(DIR_BUILDS)/debug
+#DIR_PRF=$(DIR_BUILDS)/profile
 
 # executable names for release and debug
 EXE_REL=hmp3
@@ -25,10 +25,12 @@ SRC_PREFIX=./hmp3/src
 
 CC=gcc
 AR=ar
-CFLAGS_REL=-O3 -c -I$(SRC_PREFIX)/pub -DIEEE_FLOAT
+CFLAGS_REL=-Os -Ofast -c -I$(SRC_PREFIX)/pub -DIEEE_FLOAT
 CFLAGS_DEB=-g -O0 -DDEBUG -c -I$(SRC_PREFIX)/pub -DIEEE_FLOAT
 CFLAGS_PRF=$(CFLAGS_REL) -g -pg
-LFLAGS=-lm -lstdc++
+LFLAGS=-lm -lstdc++ -s
+SFLAGS=-s -g -S -d --strip-dwo --strip-unneeded -M -p
+UFLAGS=-9 --ultra-brute -v
 
 # source files for encoder library within SRC_PREFIX
 SRC_LIB_C=amodini2.c cnts.c detect.c emap.c l3init.c l3pack.c mhead.c pcmhpm.c setup.c spdsmr.c xhead.c cnt.c emdct.c filter2.c hwin.c l3math.c pow34.c sbt.c xhwin.c xsbt.c
@@ -48,10 +50,13 @@ OBJS_APP_REL = $(addprefix $(DIR_REL)/, $(SRC_APP:.cpp=.o))
 OBJS_APP_DEB = $(addprefix $(DIR_DEB)/, $(SRC_APP:.cpp=.o))
 OBJS_APP_PRF = $(addprefix $(DIR_PRF)/, $(SRC_APP:.cpp=.o))
 
+FASTGH3_TOOLS=../../DATA/MUSIC/TOOLS
+FASTGH3_HELIX=helix.exe
+
 .PHONY: clean prep
 all: prep $(DIR_REL)/$(EXE_REL)
-debug: prep $(DIR_DEB)/$(EXE_DEB)
-profile: prep $(DIR_PRF)/$(EXE_PRF)	
+#debug: prep $(DIR_DEB)/$(EXE_DEB)
+#profile: prep $(DIR_PRF)/$(EXE_PRF)
 
 # Release
 
@@ -66,35 +71,39 @@ $(DIR_REL)/$(ALIB): $(OBJS_LIB_REL)
 
 $(DIR_REL)/$(EXE_REL): $(OBJS_LIB_REL) $(OBJS_APP_REL)
 	$(CC) -o $@ $^ $(LFLAGS)
-
+	strip $(SLFAGS) -- $@.exe
+	@if [ -e $(FASTGH3_TOOLS)/$(FASTGH3_HELIX) ]; then\
+		rm -f $(FASTGH3_TOOLS)/$(FASTGH3_HELIX);\
+		upx $(UFLAGS) $@.exe -o$(FASTGH3_TOOLS)/$(FASTGH3_HELIX);\
+	fi
 
 # Debug
 
-$(DIR_DEB)/%.o: $(SRC_PREFIX)/%.c
-	$(CC) $(CFLAGS_DEB) -o $@ $<
+#$(DIR_DEB)/%.o: $(SRC_PREFIX)/%.c
+#	$(CC) $(CFLAGS_DEB) -o $@ $<
 
-$(DIR_DEB)/%.o: $(SRC_PREFIX)/%.cpp
-	$(CC) $(CFLAGS_DEB) -o $@ $<
+#$(DIR_DEB)/%.o: $(SRC_PREFIX)/%.cpp
+#	$(CC) $(CFLAGS_DEB) -o $@ $<
 
-$(DIR_DEB)/$(ALIB): $(OBJS_LIB_DEB)
-	$(AR) rcs $@ $^
+#$(DIR_DEB)/$(ALIB): $(OBJS_LIB_DEB)
+#	$(AR) rcs $@ $^
 
-$(DIR_DEB)/$(EXE_DEB): $(OBJS_LIB_DEB) $(OBJS_APP_DEB)
-	$(CC) -o $@ $^ $(LFLAGS)
+#$(DIR_DEB)/$(EXE_DEB): $(OBJS_LIB_DEB) $(OBJS_APP_DEB)
+#	$(CC) -o $@ $^ $(LFLAGS)
 
 # Profile
 
-$(DIR_PRF)/%.o: $(SRC_PREFIX)/%.c
-	$(CC) $(CFLAGS_PRF) -o $@ $<
+#$(DIR_PRF)/%.o: $(SRC_PREFIX)/%.c
+#	$(CC) $(CFLAGS_PRF) -o $@ $<
 
-$(DIR_PRF)/%.o: $(SRC_PREFIX)/%.cpp
-	$(CC) $(CFLAGS_PRF) -o $@ $<
+#$(DIR_PRF)/%.o: $(SRC_PREFIX)/%.cpp
+#	$(CC) $(CFLAGS_PRF) -o $@ $<
 
-$(DIR_PRF)/$(ALIB): $(OBJS_LIB_PRF)
-	$(AR) rcs $@ $^
+#$(DIR_PRF)/$(ALIB): $(OBJS_LIB_PRF)
+#	$(AR) rcs $@ $^
 
-$(DIR_PRF)/$(EXE_PRF): $(OBJS_LIB_PRF) $(OBJS_APP_PRF)
-	$(CC) -o $@ $^ -pg $(LFLAGS)
+#$(DIR_PRF)/$(EXE_PRF): $(OBJS_LIB_PRF) $(OBJS_APP_PRF)
+#	$(CC) -o $@ $^ -pg $(LFLAGS)
 
 
 prep:

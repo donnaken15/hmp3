@@ -1,39 +1,39 @@
-/* ***** BEGIN LICENSE BLOCK *****  
+/* ***** BEGIN LICENSE BLOCK *****
  * Source last modified: 2022-11-24, Maik Merten
- *   
- * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
- *       
- * The contents of this file, and the files included with this file, 
- * are subject to the current version of the RealNetworks Public 
- * Source License (the "RPSL") available at 
- * http://www.helixcommunity.org/content/rpsl unless you have licensed 
- * the file under the current version of the RealNetworks Community 
- * Source License (the "RCSL") available at 
- * http://www.helixcommunity.org/content/rcsl, in which case the RCSL 
- * will apply. You may also obtain the license terms directly from 
- * RealNetworks.  You may not use this file except in compliance with 
- * the RPSL or, if you have a valid RCSL with RealNetworks applicable 
- * to this file, the RCSL.  Please see the applicable RPSL or RCSL for 
- * the rights, obligations and limitations governing use of the 
- * contents of the file. 
- *   
- * This file is part of the Helix DNA Technology. RealNetworks is the 
- * developer of the Original Code and owns the copyrights in the 
- * portions it created. 
- *   
- * This file, and the files included with this file, is distributed 
- * and made available on an 'AS IS' basis, WITHOUT WARRANTY OF ANY 
- * KIND, EITHER EXPRESS OR IMPLIED, AND REALNETWORKS HEREBY DISCLAIMS 
- * ALL SUCH WARRANTIES, INCLUDING WITHOUT LIMITATION, ANY WARRANTIES 
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, QUIET 
- * ENJOYMENT OR NON-INFRINGEMENT. 
- *  
- * Technology Compatibility Kit Test Suite(s) Location:  
- *    http://www.helixcommunity.org/content/tck  
- *  
- * Contributor(s):  
- *   
- * ***** END LICENSE BLOCK ***** */  
+ *
+ * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.
+ *
+ * The contents of this file, and the files included with this file,
+ * are subject to the current version of the RealNetworks Public
+ * Source License (the "RPSL") available at
+ * http://www.helixcommunity.org/content/rpsl unless you have licensed
+ * the file under the current version of the RealNetworks Community
+ * Source License (the "RCSL") available at
+ * http://www.helixcommunity.org/content/rcsl, in which case the RCSL
+ * will apply. You may also obtain the license terms directly from
+ * RealNetworks.  You may not use this file except in compliance with
+ * the RPSL or, if you have a valid RCSL with RealNetworks applicable
+ * to this file, the RCSL.  Please see the applicable RPSL or RCSL for
+ * the rights, obligations and limitations governing use of the
+ * contents of the file.
+ *
+ * This file is part of the Helix DNA Technology. RealNetworks is the
+ * developer of the Original Code and owns the copyrights in the
+ * portions it created.
+ *
+ * This file, and the files included with this file, is distributed
+ * and made available on an 'AS IS' basis, WITHOUT WARRANTY OF ANY
+ * KIND, EITHER EXPRESS OR IMPLIED, AND REALNETWORKS HEREBY DISCLAIMS
+ * ALL SUCH WARRANTIES, INCLUDING WITHOUT LIMITATION, ANY WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, QUIET
+ * ENJOYMENT OR NON-INFRINGEMENT.
+ *
+ * Technology Compatibility Kit Test Suite(s) Location:
+ *    http://www.helixcommunity.org/content/tck
+ *
+ * Contributor(s):
+ *
+ * ***** END LICENSE BLOCK ***** */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -54,127 +54,127 @@ extern float look_ix43[256];
 //------------------------------------------------
 // LogSubberTable  size = 84
 static const int LogSubberTable[84] = {
-    7, 22, 36, 49,
-    61, 73, 83, 93,
-    103, 112, 120, 128,
-    136, 143, 150, 156,
-    163, 168, 174, 179,
-    184, 189, 194, 198,
-    202, 206, 210, 214,
-    217, 220, 223, 227,
-    229, 232, 235, 237,
-    240, 242, 244, 247,
-    249, 251, 253, 254,
-    256, 258, 259, 261,
-    263, 264, 265, 267,
-    268, 269, 270, 271,
-    273, 274, 275, 276,
-    277, 277, 278, 279,
-    280, 281, 281, 282,
-    283, 283, 284, 285,
-    285, 286, 286, 287,
-    287, 288, 288, 289,
-    289, 290, 290, 290,
+	7, 22, 36, 49,
+	61, 73, 83, 93,
+	103, 112, 120, 128,
+	136, 143, 150, 156,
+	163, 168, 174, 179,
+	184, 189, 194, 198,
+	202, 206, 210, 214,
+	217, 220, 223, 227,
+	229, 232, 235, 237,
+	240, 242, 244, 247,
+	249, 251, 253, 254,
+	256, 258, 259, 261,
+	263, 264, 265, 267,
+	268, 269, 270, 271,
+	273, 274, 275, 276,
+	277, 277, 278, 279,
+	280, 281, 281, 282,
+	283, 283, 284, 285,
+	285, 286, 286, 287,
+	287, 288, 288, 289,
+	289, 290, 290, 290,
 };
 
 /* ATTENTION! quant_table[0] is modified */
 static float quant_table[32] = {
-    0.09460f - 0.4375f, //    0
-    0.02799f - 0.4375f, //    1
-    0.01671f - 0.4375f, //    2
-    0.01192f - 0.4375f, //    3
-    0.00927f - 0.4375f, //    4
-    0.00758f - 0.4375f, //    5
-    0.00641f - 0.4375f, //    6
-    0.00556f - 0.4375f, //    7
-    0.00490f - 0.4375f, //    8
-    0.00439f - 0.4375f, //    9
-    0.00397f - 0.4375f, //   10
-    0.00362f - 0.4375f, //   11
-    0.00333f - 0.4375f, //   12
-    0.00309f - 0.4375f, //   13
-    0.00287f - 0.4375f, //   14
-    0.00269f - 0.4375f, //   15
-    0.00253f - 0.4375f, //   16
-    0.00238f - 0.4375f, //   17
-    0.00225f - 0.4375f, //   18
-    0.00214f - 0.4375f, //   19
-    0.00203f - 0.4375f, //   20
-    0.00194f - 0.4375f, //   21
-    0.00185f - 0.4375f, //   22
-    0.00177f - 0.4375f, //   23
-    0.00170f - 0.4375f, //   24
-    0.00163f - 0.4375f, //   25
-    0.00157f - 0.4375f, //   26
-    0.00152f - 0.4375f, //   27
-    0.00146f - 0.4375f, //   28
-    0.00141f - 0.4375f, //   29
-    0.00136f - 0.4375f, //   30
-    0.00132f - 0.4375f, //   31
+	0.09460f - 0.4375f, //    0
+	0.02799f - 0.4375f, //    1
+	0.01671f - 0.4375f, //    2
+	0.01192f - 0.4375f, //    3
+	0.00927f - 0.4375f, //    4
+	0.00758f - 0.4375f, //    5
+	0.00641f - 0.4375f, //    6
+	0.00556f - 0.4375f, //    7
+	0.00490f - 0.4375f, //    8
+	0.00439f - 0.4375f, //    9
+	0.00397f - 0.4375f, //   10
+	0.00362f - 0.4375f, //   11
+	0.00333f - 0.4375f, //   12
+	0.00309f - 0.4375f, //   13
+	0.00287f - 0.4375f, //   14
+	0.00269f - 0.4375f, //   15
+	0.00253f - 0.4375f, //   16
+	0.00238f - 0.4375f, //   17
+	0.00225f - 0.4375f, //   18
+	0.00214f - 0.4375f, //   19
+	0.00203f - 0.4375f, //   20
+	0.00194f - 0.4375f, //   21
+	0.00185f - 0.4375f, //   22
+	0.00177f - 0.4375f, //   23
+	0.00170f - 0.4375f, //   24
+	0.00163f - 0.4375f, //   25
+	0.00157f - 0.4375f, //   26
+	0.00152f - 0.4375f, //   27
+	0.00146f - 0.4375f, //   28
+	0.00141f - 0.4375f, //   29
+	0.00136f - 0.4375f, //   30
+	0.00132f - 0.4375f, //   31
 };
 
 static const float con707 = 0.70710678f;
 
 static const float map_table[] = {
-    1.000,
-    0.875,
-    0.750,
-    0.625,
-    0.500,
-    0.375,
-    0.250,
-    0.125,
+	1.000,
+	0.875,
+	0.750,
+	0.625,
+	0.500,
+	0.375,
+	0.250,
+	0.125,
 };
 
 /*===============================================================*/
 float *
 align16 ( float *x )
 {
-    float *y;
+	float *y;
 
-    y = ( float * ) ( ( ( ( int ) x ) + 15 ) & ( ~15 ) );
+	y = ( float * ) ( ( ( ( int ) x ) + 15 ) & ( ~15 ) );
 
-    return y;
+	return y;
 }
 
 /*===============================================================*/
 float
 dbLog ( float x )
 {
-    return ( float ) ( 10.0 * log10 ( x ) );
+	return ( float ) ( 10.0 * log10 ( x ) );
 }
 
 /*---------------------------------------------------------------*/
 float
 dbLogB ( float x )
 {
-    if ( x <= 1.18e-38f )
-        return -379.28f;
-    return ( float ) ( 10.0 * log10 ( x ) );
+	if ( x <= 1.18e-38f )
+		return -379.28f;
+	return ( float ) ( 10.0 * log10 ( x ) );
 }
 
 /*---------------------------------------------------------------*/
 int
 mbLog ( float x )
 {
-    int t;
+	int t;
 
-    if ( x <= 1.18e-38f )
-        return -37928;
-    t = ( int ) ( 1000.0 * log10 ( x ) + 0.5 );
-    return t;
+	if ( x <= 1.18e-38f )
+		return -37928;
+	t = ( int ) ( 1000.0 * log10 ( x ) + 0.5 );
+	return t;
 }
 
 /*---------------------------------------------------------------*/
 int
 mbLogB ( float x )
 {
-    int t;
+	int t;
 
-    if ( x <= 1.18e-38f )
-        return -37928;
-    t = ( int ) ( 1000.0 * log10 ( x ) + 0.5 );
-    return t;
+	if ( x <= 1.18e-38f )
+		return -37928;
+	t = ( int ) ( 1000.0 * log10 ( x ) + 0.5 );
+	return t;
 }
 
 /*---------------------------------------------------------------*/
@@ -228,17 +228,17 @@ int
 mbLogC ( float x )
 {
 #ifndef IEEE_FLOAT
-    int t;
+	int t;
 
-    if ( x <= 1.18e-38f )
-        return -37928;
-    t = ( int ) ( 1000.0 * log10 ( x ) + 0.5 );
-    return t;
+	if ( x <= 1.18e-38f )
+		return -37928;
+	t = ( int ) ( 1000.0 * log10 ( x ) + 0.5 );
+	return t;
 #else
-    union {float f; unsigned int i;} u = {x} ;
-    unsigned int exponent = u.i >> 23 ;
-    unsigned int mant = (u.i >> (23-8)) & 255 ;
-    return logMbC_table[mant] + 301*exponent ;
+	union {float f; unsigned int i;} u = {x} ;
+	unsigned int exponent = u.i >> 23 ;
+	unsigned int mant = (u.i >> (23-8)) & 255 ;
+	return logMbC_table[mant] + 301*exponent ;
 #endif
 }
 
@@ -344,15 +344,15 @@ mbExp ( int x )
 #ifndef IEEE_FLOAT
 // return anti-log of x, x in milli-bells
 
-    return ( float ) exp ( 0.00230258509299 * x );
+	return ( float ) exp ( 0.00230258509299 * x );
 #else
-    unsigned short u1 = (unsigned)x & 0xff ;
-    unsigned short u2 = ((unsigned)x & 0xff00) >> 8 ;
-    float t = look_mbExpB[u1].f * look_mbExpA[u2].f ;
-    
-    if (x > 32000)       return 1.0E32f ;
-    else if (x < -32000) return 1.0E-32f ;
-    else return t ;
+	unsigned short u1 = (unsigned)x & 0xff ;
+	unsigned short u2 = ((unsigned)x & 0xff00) >> 8 ;
+	float t = look_mbExpB[u1].f * look_mbExpA[u2].f ;
+
+	if (x > 32000)       return 1.0E32f ;
+	else if (x < -32000) return 1.0E-32f ;
+	else return t ;
 #endif
 }
 
@@ -360,25 +360,25 @@ mbExp ( int x )
 int
 round_to_int ( float x )
 {
-    return (int)(x + copysignf(0.5f, x));
+	return (int)(x + copysignf(0.5f, x));
 }
 
 /*---------------------------------------------------------------*/
 int
 LogSubber ( int mbNoise, int mbNoise2 )
 {
-    int a, k;
+	int a, k;
 
 // mbNoise in milli-bells
 // mbNoise > mbNoise2
 //  computes mbLog(2*antilog(mbNoise) - antilog(mbNoise2))
 
-    k = ( mbNoise - mbNoise2 ) >> 4;
-    if ( k > 83 )
-        k = 83;
-    a = mbNoise + LogSubberTable[k];
+	k = ( mbNoise - mbNoise2 ) >> 4;
+	if ( k > 83 )
+		k = 83;
+	a = mbNoise + LogSubberTable[k];
 
-    return a;
+	return a;
 }
 
 /*---------------------------------------------------------------*/
@@ -387,10 +387,10 @@ pos_fmax ( float x, float y )
 {
 // return HX_MAX(x,y), will only be used non-negative x, y
 
-    if ( x > y )
-        return x;
-    else
-        return y;
+	if ( x > y )
+		return x;
+	else
+		return y;
 
 }
 
@@ -398,15 +398,15 @@ pos_fmax ( float x, float y )
 void
 vect_pow3414 ( float xr[], float x34[], float x14[], int n )
 {
-    int i;
-    float t;
+	int i;
+	float t;
 
-    for ( i = 0; i < n; i++ )
-    {
-        t = ( float ) sqrt ( sqrt ( fabs ( xr[i] ) ) );
-        x14[i] = t;
-        x34[i] = t * t * t;
-    }
+	for ( i = 0; i < n; i++ )
+	{
+		t = ( float ) sqrt ( sqrt ( fabs ( xr[i] ) ) );
+		x14[i] = t;
+		x34[i] = t * t * t;
+	}
 
 }
 
@@ -414,59 +414,59 @@ vect_pow3414 ( float xr[], float x34[], float x14[], int n )
 float
 vect_fmax1 ( float x[], int n )
 {
-    int i;
-    float xmax;
+	int i;
+	float xmax;
 
-    xmax = 0.0f;
-    for ( i = 0; i < n; i++ )
-    {
-        if ( x[i] > xmax )
-            xmax = x[i];
-    }
+	xmax = 0.0f;
+	for ( i = 0; i < n; i++ )
+	{
+		if ( x[i] > xmax )
+			xmax = x[i];
+	}
 
-    return xmax;
+	return xmax;
 }
 
 /*---------------------------------------------------------------*/
 void
 vect_fmax2 ( float x[], int n, float *yout )
 {
-    int i;
-    float xmax;
+	int i;
+	float xmax;
 
-    xmax = 0.0f;
-    for ( i = 0; i < n; i++ )
-    {
-        if ( x[i] > xmax )
-            xmax = x[i];
-    }
+	xmax = 0.0f;
+	for ( i = 0; i < n; i++ )
+	{
+		if ( x[i] > xmax )
+			xmax = x[i];
+	}
 
-    *yout = xmax;
+	*yout = xmax;
 }
 
 /*---------------------------------------------------------------*/
 float
 vect_sign_sxx ( float x[], char sign[], int n )
 {
-    int i;
-    float sxx;
+	int i;
+	float sxx;
 
-    sxx = 0.0f;
-    for ( i = 0; i < n; i++ )
-    {
-        if ( x[i] >= 0.0f )
-        {
-            sign[i] = 0;
-        }
-        else
-        {
-            sign[i] = 1;
-            x[i] = -x[i];
-        }
-        sxx += x[i] * x[i];
-    }
+	sxx = 0.0f;
+	for ( i = 0; i < n; i++ )
+	{
+		if ( x[i] >= 0.0f )
+		{
+			sign[i] = 0;
+		}
+		else
+		{
+			sign[i] = 1;
+			x[i] = -x[i];
+		}
+		sxx += x[i] * x[i];
+	}
 
-    return sxx;
+	return sxx;
 }
 
 /*---------------------------------------------------------------*/
@@ -483,7 +483,7 @@ gsf = (int)(xgsf + 0.5f);
 igain = look_pigain[gsf];
 p   = (int)(0.5f + x14max*igain);
 sum = look_f00_pmax[p];    // in mb
-noise = (int)(sum + 110.0*(xgsf-gsf) + 150.515f*(gsf-g_offset));  
+noise = (int)(sum + 110.0*(xgsf-gsf) + 150.515f*(gsf-g_offset));
 // asm version rounds final result to nearest (may be negative)
 
 return noise;
@@ -511,36 +511,36 @@ RoundFtoL(float f) {
 int
 ifnc_noise_actual ( const float x34[], const float x[], int gsf, int n, int log_of_n )
 {
-    int i, qx, noise;
-    float igain, gain, sxx, xhat, tmp;
+	int i, qx, noise;
+	float igain, gain, sxx, xhat, tmp;
 
-    sxx = 0.0f;
-    igain = look_34igain[gsf];
-    gain = look_gain[gsf];
+	sxx = 0.0f;
+	igain = look_34igain[gsf];
+	gain = look_gain[gsf];
 
-    for ( i = 0; i < n; i++ )
-    {
+	for ( i = 0; i < n; i++ )
+	{
 //        qx = ( int ) ( igain * x34[i] + ( 0.5f - 0.0946f ) );
 //        qx = RoundFtoL ( igain * x34[i] + ( 0.0f - 0.0946f ) ) ;
-        tmp = ( igain * x34[i] + ( 0.0f - 0.0946f ) ) ;
-        qx = (int)(tmp + copysignf(0.5f, tmp));
-        if ( qx < 256 )
-        {
-            xhat = gain * look_ix43[qx];
-        }
-        else
-        {
-            xhat = ( float ) ( gain * pow ( qx, ( 4.0 / 3.0 ) ) );
-        }
-        tmp = x[i] - xhat;
-        sxx += tmp * tmp;
-    }
+		tmp = ( igain * x34[i] + ( 0.0f - 0.0946f ) ) ;
+		qx = (int)(tmp + copysignf(0.5f, tmp));
+		if ( qx < 256 )
+		{
+			xhat = gain * look_ix43[qx];
+		}
+		else
+		{
+			xhat = ( float ) ( gain * pow ( qx, ( 4.0 / 3.0 ) ) );
+		}
+		tmp = x[i] - xhat;
+		sxx += tmp * tmp;
+	}
 
 //    noise = ( int ) ( 1000.0 * log10 ( 1.0e-12f + sxx ) + 0.5 );
 //    noise = noise - log_of_n;
-    noise = mbLogC(1.0e-12f + sxx) - log_of_n ;
+	noise = mbLogC(1.0e-12f + sxx) - log_of_n ;
 
-    return noise;
+	return noise;
 }
 
 /*---------------------------------------------------------------*/
@@ -549,221 +549,221 @@ ifnc_noise_actual ( const float x34[], const float x[], int gsf, int n, int log_
 
 int
 ifnc_noise_actual2 ( float x34[], float x[],
-                     int gsf, int n, int log_of_n, int sf )
+					 int gsf, int n, int log_of_n, int sf )
 {
-    int i, qx, noise;
-    float igain, gain, sxx, xhat, tmp;
+	int i, qx, noise;
+	float igain, gain, sxx, xhat, tmp;
 
 // gsf = forward quant, sf = dequant
 
-    sxx = 0.0f;
-    igain = look_34igain[gsf];
-    gain = look_gain[sf];
+	sxx = 0.0f;
+	igain = look_34igain[gsf];
+	gain = look_gain[sf];
 
-    for ( i = 0; i < n; i++ )
-    {
-        qx = ( int ) ( igain * x34[i] + ( 0.5f - 0.0946f ) );
-        if ( qx < 256 )
-        {
-            xhat = gain * look_ix43[qx];
-        }
-        else
-        {
-            xhat = ( float ) ( gain * pow ( qx, ( 4.0 / 3.0 ) ) );
-        }
-        tmp = x[i] - xhat;
-        sxx += tmp * tmp;
-    }
+	for ( i = 0; i < n; i++ )
+	{
+		qx = ( int ) ( igain * x34[i] + ( 0.5f - 0.0946f ) );
+		if ( qx < 256 )
+		{
+			xhat = gain * look_ix43[qx];
+		}
+		else
+		{
+			xhat = ( float ) ( gain * pow ( qx, ( 4.0 / 3.0 ) ) );
+		}
+		tmp = x[i] - xhat;
+		sxx += tmp * tmp;
+	}
 
-    noise = ( int ) ( 1000.0 * log10 ( 1.0e-12f + sxx ) + 0.5 );
+	noise = ( int ) ( 1000.0 * log10 ( 1.0e-12f + sxx ) + 0.5 );
 
-    noise = noise - log_of_n;
+	noise = noise - log_of_n;
 
-    return noise;
+	return noise;
 }
 
 /*---------------------------------------------------------------*/
 int
 ifnc_noise_actualX2 ( float x34[], float x[],
-                      float igain, int n, int log_of_n, int sf )
+					  float igain, int n, int log_of_n, int sf )
 {
-    int i, qx, noise;
-    float gain, sxx, xhat, tmp;
+	int i, qx, noise;
+	float gain, sxx, xhat, tmp;
 
 // igain = forward quant, sf = dequant
 
-    sxx = 0.0f;
+	sxx = 0.0f;
 //igain = look_34igain[gsf];
-    gain = look_gain[sf];
+	gain = look_gain[sf];
 
-    for ( i = 0; i < n; i++ )
-    {
-        qx = ( int ) ( igain * x34[i] + ( 0.5f - 0.0946f ) );
-        if ( qx < 256 )
-        {
-            xhat = gain * look_ix43[qx];
-        }
-        else
-        {
-            xhat = ( float ) ( gain * pow ( qx, ( 4.0 / 3.0 ) ) );
-        }
-        tmp = x[i] - xhat;
-        sxx += tmp * tmp;
-    }
+	for ( i = 0; i < n; i++ )
+	{
+		qx = ( int ) ( igain * x34[i] + ( 0.5f - 0.0946f ) );
+		if ( qx < 256 )
+		{
+			xhat = gain * look_ix43[qx];
+		}
+		else
+		{
+			xhat = ( float ) ( gain * pow ( qx, ( 4.0 / 3.0 ) ) );
+		}
+		tmp = x[i] - xhat;
+		sxx += tmp * tmp;
+	}
 
-    noise = ( int ) ( 1000.0 * log10 ( 1.0e-12f + sxx ) + 0.5 );
+	noise = ( int ) ( 1000.0 * log10 ( 1.0e-12f + sxx ) + 0.5 );
 
-    noise = noise - log_of_n;
+	noise = noise - log_of_n;
 
-    return noise;
+	return noise;
 }
 
 /*---------------------------------------------------------------*/
 int
 ifnc_ixnoise_actual ( int ix[], float x[], int sf, int n, int logn )
 {
-    int i, noise;
-    float gain, sxx, xhat, tmp;
+	int i, noise;
+	float gain, sxx, xhat, tmp;
 
 // ix = quantized value,  sf = dequant
 
-    sxx = 0.0f;
-    gain = look_gain[sf];
+	sxx = 0.0f;
+	gain = look_gain[sf];
 
-    for ( i = 0; i < n; i++ )
-    {
-        if ( ix[i] < 256 )
-        {
-            xhat = gain * look_ix43[ix[i]];
-        }
-        else
-        {
-            xhat = ( float ) ( gain * pow ( ix[i], ( 4.0 / 3.0 ) ) );
-        }
-        tmp = x[i] - xhat;
-        sxx += tmp * tmp;
-    }
+	for ( i = 0; i < n; i++ )
+	{
+		if ( ix[i] < 256 )
+		{
+			xhat = gain * look_ix43[ix[i]];
+		}
+		else
+		{
+			xhat = ( float ) ( gain * pow ( ix[i], ( 4.0 / 3.0 ) ) );
+		}
+		tmp = x[i] - xhat;
+		sxx += tmp * tmp;
+	}
 
-    noise = ( int ) ( 1000.0 * log10 ( 1.0e-12f + sxx ) + 0.5 );
+	noise = ( int ) ( 1000.0 * log10 ( 1.0e-12f + sxx ) + 0.5 );
 
-    noise = noise - logn;
+	noise = noise - logn;
 
-    return noise;
+	return noise;
 }
 
 /*---------------------------------------------------------------*/
 int
 vect_quant ( float x34[], int ix[], int gsf, int n )
 {
-    int i, ixmax;
-    float igain;
+	int i, ixmax;
+	float igain;
 
-    igain = look_34igain[gsf];
-    ixmax = 0;
-    for ( i = 0; i < n; i++ )
-    {
-        ix[i] = ( int ) ( igain * x34[i] + ( 0.5f - 0.0946f ) );
-        if ( ix[i] > ixmax )
-            ixmax = ix[i];
-    }
+	igain = look_34igain[gsf];
+	ixmax = 0;
+	for ( i = 0; i < n; i++ )
+	{
+		ix[i] = ( int ) ( igain * x34[i] + ( 0.5f - 0.0946f ) );
+		if ( ix[i] > ixmax )
+			ixmax = ix[i];
+	}
 
-    return ixmax;
+	return ixmax;
 }
 
 /*---------------------------------------------------------------*/
 int
 vect_quantB ( float x34[], int ix[], int gsf, int n )
 {
-    int i, iq, ixmax;
-    float igain, t;
+	int i, iq, ixmax;
+	float igain, t;
 
-    igain = look_34igain[gsf];
-    ixmax = 0;
-    for ( i = 0; i < n; i++ )
-    {
-        t = igain * x34[i] + ( 0.5f - 0.4375f );
-        iq = ( int ) t;
-        if ( iq > 31 )
-            iq = 31;
-        ix[i] = ( int ) ( t - quant_table[iq] );
-        if ( ix[i] > ixmax )
-            ixmax = ix[i];
-    }
+	igain = look_34igain[gsf];
+	ixmax = 0;
+	for ( i = 0; i < n; i++ )
+	{
+		t = igain * x34[i] + ( 0.5f - 0.4375f );
+		iq = ( int ) t;
+		if ( iq > 31 )
+			iq = 31;
+		ix[i] = ( int ) ( t - quant_table[iq] );
+		if ( ix[i] > ixmax )
+			ixmax = ix[i];
+	}
 
-    return ixmax;
+	return ixmax;
 }
 
 /*---------------------------------------------------------------*/
 int
 vect_quantB2 ( float x34[], int ix[], int gsf, int n, float qadjust )
 {
-    int i, iq, ixmax;
-    float igain, t;
-    float save;
+	int i, iq, ixmax;
+	float igain, t;
+	float save;
 
-    save = quant_table[0];
-    quant_table[0] = qadjust;
+	save = quant_table[0];
+	quant_table[0] = qadjust;
 
-    igain = look_34igain[gsf];
-    ixmax = 0;
-    for ( i = 0; i < n; i++ )
-    {
-        t = igain * x34[i] + ( 0.5f - 0.4375f );
-        iq = ( int ) t;
-        if ( iq > 31 )
-            iq = 31;
-        ix[i] = ( int ) ( t - quant_table[iq] );
-        if ( ix[i] > ixmax )
-            ixmax = ix[i];
-    }
+	igain = look_34igain[gsf];
+	ixmax = 0;
+	for ( i = 0; i < n; i++ )
+	{
+		t = igain * x34[i] + ( 0.5f - 0.4375f );
+		iq = ( int ) t;
+		if ( iq > 31 )
+			iq = 31;
+		ix[i] = ( int ) ( t - quant_table[iq] );
+		if ( ix[i] > ixmax )
+			ixmax = ix[i];
+	}
 
-    quant_table[0] = save;
+	quant_table[0] = save;
 
-    return ixmax;
+	return ixmax;
 }
 
 /*---------------------------------------------------------------*/
 int
 vect_quantB10x ( float x34[], int ix[], int gsf, int n )
 {
-    int i, iq, ixmax;
-    float igain, t;
+	int i, iq, ixmax;
+	float igain, t;
 
-// quant at 10x actual - 
+// quant at 10x actual -
 // asm ix result can be negative (rounding)
 // in this routine ix non-negative
 
-    igain = look_34igain[gsf];
-    ixmax = 0;
-    for ( i = 0; i < n; i++ )
-    {
-        t = igain * x34[i] + ( 0.5f - 0.4375f );
-        iq = ( int ) t;
-        if ( iq > 31 )
-            iq = 31;
-        ix[i] = ( int ) ( 10.0f * ( t - quant_table[iq] ) + ( 0.5f - 5.0f ) );
-        if ( ix[i] > ixmax )
-            ixmax = ix[i];
-    }
+	igain = look_34igain[gsf];
+	ixmax = 0;
+	for ( i = 0; i < n; i++ )
+	{
+		t = igain * x34[i] + ( 0.5f - 0.4375f );
+		iq = ( int ) t;
+		if ( iq > 31 )
+			iq = 31;
+		ix[i] = ( int ) ( 10.0f * ( t - quant_table[iq] ) + ( 0.5f - 5.0f ) );
+		if ( ix[i] > ixmax )
+			ixmax = ix[i];
+	}
 
-    return ixmax;
+	return ixmax;
 }
 
 /*---------------------------------------------------------------*/
 void
 vect_ixmax_quantB ( float x34max[], int ixmax[], int gsf[], int n )
 {
-    int i, iq;
-    float t;
+	int i, iq;
+	float t;
 
-    for ( i = 0; i < n; i++ )
-    {
-        t = look_34igain[gsf[i]] * x34max[i] + ( 0.5f - 0.4375f );
-        iq = ( int ) t;
-        if ( iq > 31 )
-            iq = 31;
-        ixmax[i] = ( int ) ( t - quant_table[iq] );
-    }
+	for ( i = 0; i < n; i++ )
+	{
+		t = look_34igain[gsf[i]] * x34max[i] + ( 0.5f - 0.4375f );
+		iq = ( int ) t;
+		if ( iq > 31 )
+			iq = 31;
+		ixmax[i] = ( int ) ( t - quant_table[iq] );
+	}
 
 }
 
@@ -771,22 +771,22 @@ vect_ixmax_quantB ( float x34max[], int ixmax[], int gsf[], int n )
 void
 vect_ix10xmax_quantB ( float x34max[], int ixmax[], int gsf[], int n )
 {
-    int i, iq;
-    float t;
+	int i, iq;
+	float t;
 
-// quant at 10x actual - 
+// quant at 10x actual -
 // asm  result can be negative (rounding)
 // in this routine non-negative
 
-    for ( i = 0; i < n; i++ )
-    {
-        t = look_34igain[gsf[i]] * x34max[i] + ( 0.5f - 0.4375f );
-        iq = ( int ) t;
-        if ( iq > 31 )
-            iq = 31;
-        ixmax[i] =
-            ( int ) ( 10.0f * ( t - quant_table[iq] ) + ( 0.5f - 5.0f ) );
-    }
+	for ( i = 0; i < n; i++ )
+	{
+		t = look_34igain[gsf[i]] * x34max[i] + ( 0.5f - 0.4375f );
+		iq = ( int ) t;
+		if ( iq > 31 )
+			iq = 31;
+		ixmax[i] =
+			( int ) ( 10.0f * ( t - quant_table[iq] ) + ( 0.5f - 5.0f ) );
+	}
 
 }
 
@@ -795,53 +795,53 @@ int
 vect_quantX ( float x34[], int ix[], float igain, int n )
 {
 
-    int i, ixmax;
+	int i, ixmax;
 
 //igain = look_34igain[gsf];
-    ixmax = 0;
-    for ( i = 0; i < n; i++ )
-    {
-        ix[i] = ( int ) ( igain * x34[i] + ( 0.5f - 0.0946f ) );
-        if ( ix[i] > ixmax )
-            ixmax = ix[i];
-    }
+	ixmax = 0;
+	for ( i = 0; i < n; i++ )
+	{
+		ix[i] = ( int ) ( igain * x34[i] + ( 0.5f - 0.0946f ) );
+		if ( ix[i] > ixmax )
+			ixmax = ix[i];
+	}
 
-    return ixmax;
+	return ixmax;
 }
 
 /*---------------------------------------------------------------*/
 int
 vect_quant_clip1 ( float x34[], int ix[], int gsf, int n )
 {
-    int i, ixmax;
-    float igain;
+	int i, ixmax;
+	float igain;
 
-    igain = look_34igain[gsf];
-    ixmax = 0;
-    for ( i = 0; i < n; i++ )
-    {
-        ix[i] = ( int ) ( igain * x34[i] + ( 0.5f - 0.0946f ) );
-        if ( ix[i] > 1 )
-            ix[i] = 1;
-        ixmax |= ix[i];
-    }
+	igain = look_34igain[gsf];
+	ixmax = 0;
+	for ( i = 0; i < n; i++ )
+	{
+		ix[i] = ( int ) ( igain * x34[i] + ( 0.5f - 0.0946f ) );
+		if ( ix[i] > 1 )
+			ix[i] = 1;
+		ixmax |= ix[i];
+	}
 
-    return ixmax;
+	return ixmax;
 }
 
 /*---------------------------------------------------------------*/
 void
 vect_limits ( int x[], int upper[], int lower[], int n )
 {
-    int i;
+	int i;
 
-    for ( i = 0; i < n; i++ )
-    {
-        if ( x[i] > upper[i] )
-            x[i] = upper[i];
-        else if ( x[i] < lower[i] )
-            x[i] = lower[i];
-    }
+	for ( i = 0; i < n; i++ )
+	{
+		if ( x[i] > upper[i] )
+			x[i] = upper[i];
+		else if ( x[i] < lower[i] )
+			x[i] = lower[i];
+	}
 
 }
 
@@ -849,24 +849,24 @@ vect_limits ( int x[], int upper[], int lower[], int n )
 void
 shave_01pairs ( float x34[], int ix[], int g, int n, float thres )
 {
-    int i;
-    float t;
+	int i;
+	float t;
 
-    t = thres / look_34igain[g];
+	t = thres / look_34igain[g];
 
-    for ( i = 0; i < n; i += 2 )
-    {
-        if ( ( ix[i] == 1 ) && ( ix[i + 1] == 0 ) )
-        {
-            if ( x34[i] < t )
-                ix[i] = 0;
-        }
-        else if ( ( ix[i] == 0 ) && ( ix[i + 1] == 1 ) )
-        {
-            if ( x34[i + 1] < t )
-                ix[i + 1] = 0;
-        }
-    }
+	for ( i = 0; i < n; i += 2 )
+	{
+		if ( ( ix[i] == 1 ) && ( ix[i + 1] == 0 ) )
+		{
+			if ( x34[i] < t )
+				ix[i] = 0;
+		}
+		else if ( ( ix[i] == 0 ) && ( ix[i + 1] == 1 ) )
+		{
+			if ( x34[i + 1] < t )
+				ix[i + 1] = 0;
+		}
+	}
 
 }
 
@@ -874,27 +874,27 @@ shave_01pairs ( float x34[], int ix[], int g, int n, float thres )
 void
 fnc_ms_process ( float xr[][576], int n, char ixsign[][576] )
 {
-    int i;
-    float x0, x1;
+	int i;
+	float x0, x1;
 
-    for ( i = 0; i < n; i++ )
-    {
-        x0 = con707 * ( xr[0][i] + xr[1][i] );
-        x1 = con707 * ( xr[0][i] - xr[1][i] );
-        ixsign[0][i] = ixsign[1][i] = 0;
-        if ( x0 < 0.0f )
-        {
-            ixsign[0][i] = 1;
-            x0 = -x0;
-        }
-        if ( x1 < 0.0f )
-        {
-            ixsign[1][i] = 1;
-            x1 = -x1;
-        }
-        xr[0][i] = x0;
-        xr[1][i] = x1;
-    }
+	for ( i = 0; i < n; i++ )
+	{
+		x0 = con707 * ( xr[0][i] + xr[1][i] );
+		x1 = con707 * ( xr[0][i] - xr[1][i] );
+		ixsign[0][i] = ixsign[1][i] = 0;
+		if ( x0 < 0.0f )
+		{
+			ixsign[0][i] = 1;
+			x0 = -x0;
+		}
+		if ( x1 < 0.0f )
+		{
+			ixsign[1][i] = 1;
+			x1 = -x1;
+		}
+		xr[0][i] = x0;
+		xr[1][i] = x1;
+	}
 
 }
 
@@ -902,28 +902,28 @@ fnc_ms_process ( float xr[][576], int n, char ixsign[][576] )
 void
 fnc_ms_process2 ( float xr[][576], int n, char ixsign[][576] )
 {
-    int i;
-    float x0, x1;
+	int i;
+	float x0, x1;
 
 // no sqrt(2) scaling, bitallo adjusts scale factors
-    for ( i = 0; i < n; i++ )
-    {
-        x0 = ( xr[0][i] + xr[1][i] );
-        x1 = ( xr[0][i] - xr[1][i] );
-        ixsign[0][i] = ixsign[1][i] = 0;
-        if ( x0 < 0.0f )
-        {
-            ixsign[0][i] = 1;
-            x0 = -x0;
-        }
-        if ( x1 < 0.0f )
-        {
-            ixsign[1][i] = 1;
-            x1 = -x1;
-        }
-        xr[0][i] = x0;
-        xr[1][i] = x1;
-    }
+	for ( i = 0; i < n; i++ )
+	{
+		x0 = ( xr[0][i] + xr[1][i] );
+		x1 = ( xr[0][i] - xr[1][i] );
+		ixsign[0][i] = ixsign[1][i] = 0;
+		if ( x0 < 0.0f )
+		{
+			ixsign[0][i] = 1;
+			x0 = -x0;
+		}
+		if ( x1 < 0.0f )
+		{
+			ixsign[1][i] = 1;
+			x1 = -x1;
+		}
+		xr[0][i] = x0;
+		xr[1][i] = x1;
+	}
 
 }
 
@@ -931,22 +931,22 @@ fnc_ms_process2 ( float xr[][576], int n, char ixsign[][576] )
 void
 fnc_ms_sparse ( float xr[][576], int n, float thres )
 {
-    int i;
-    float ss, sd, t;
+	int i;
+	float ss, sd, t;
 
 // not used, not tested?
 
-    for ( i = 0; i < n; i += 2 )
-    {
-        ss = xr[0][i] * xr[0][i] + xr[0][i + 1] * xr[0][i + 1];
-        sd = xr[1][i] * xr[1][i] + xr[1][i + 1] * xr[1][i + 1];
-        t = thres * ( ss + sd );
-        if ( sd < t )
-        {
-            xr[1][i] = 0.0f;
-            xr[1][i + 1] = 0.0f;
-        }
-    }
+	for ( i = 0; i < n; i += 2 )
+	{
+		ss = xr[0][i] * xr[0][i] + xr[0][i + 1] * xr[0][i + 1];
+		sd = xr[1][i] * xr[1][i] + xr[1][i + 1] * xr[1][i + 1];
+		t = thres * ( ss + sd );
+		if ( sd < t )
+		{
+			xr[1][i] = 0.0f;
+			xr[1][i + 1] = 0.0f;
+		}
+	}
 
 }
 
@@ -954,22 +954,22 @@ fnc_ms_sparse ( float xr[][576], int n, float thres )
 void
 fnc_ms_sparse_sum ( float xr[][576], int n, float thres )
 {
-    int i;
-    float ss, sd, t;
+	int i;
+	float ss, sd, t;
 
 // not used, not tested?
 
-    for ( i = 0; i < n; i += 2 )
-    {
-        ss = xr[0][i] * xr[0][i] + xr[0][i + 1] * xr[0][i + 1];
-        sd = xr[1][i] * xr[1][i] + xr[1][i + 1] * xr[1][i + 1];
-        t = thres * ( ss + sd );
-        if ( ss < t )
-        {
-            xr[0][i] = 0.0f;
-            xr[0][i + 1] = 0.0f;
-        }
-    }
+	for ( i = 0; i < n; i += 2 )
+	{
+		ss = xr[0][i] * xr[0][i] + xr[0][i + 1] * xr[0][i + 1];
+		sd = xr[1][i] * xr[1][i] + xr[1][i + 1] * xr[1][i + 1];
+		t = thres * ( ss + sd );
+		if ( ss < t )
+		{
+			xr[0][i] = 0.0f;
+			xr[0][i + 1] = 0.0f;
+		}
+	}
 
 }
 
@@ -977,14 +977,14 @@ fnc_ms_sparse_sum ( float xr[][576], int n, float thres )
 void
 fnc_sxx ( float xr[][576], int n, float sxx[] )
 {
-    int i;
+	int i;
 
-    sxx[0] = sxx[1] = 0.0f;
-    for ( i = 0; i < n; i++ )
-    {
-        sxx[0] += xr[0][i] * xr[0][i];
-        sxx[1] += xr[1][i] * xr[1][i];
-    }
+	sxx[0] = sxx[1] = 0.0f;
+	for ( i = 0; i < n; i++ )
+	{
+		sxx[0] += xr[0][i] * xr[0][i];
+		sxx[1] += xr[1][i] * xr[1][i];
+	}
 
 }
 
@@ -992,62 +992,62 @@ fnc_sxx ( float xr[][576], int n, float sxx[] )
 int
 vect_imax ( int x[], int n )
 {
-    int i, imax;
+	int i, imax;
 
 //
 // neg x ok, but returns imax >= 0
 
-    imax = 0;
-    for ( i = 0; i < n; i++ )
-    {
-        if ( x[i] > imax )
-            imax = x[i];
-    }
+	imax = 0;
+	for ( i = 0; i < n; i++ )
+	{
+		if ( x[i] > imax )
+			imax = x[i];
+	}
 
-    return imax;
+	return imax;
 }
 
 /*---------------------------------------------------------------*/
 void
 map_xform ( float x[], float rrx[], int npolar )
 {
-    int i, k;
+	int i, k;
 
 // map transform energy into FFT bins
 
-    for ( k = 0, i = 0; i < npolar; i += 8, k += 9 )
-    {
-        rrx[i] =
-            map_table[0] * x[k] * x[k] + map_table[7] * x[k + 1] * x[k + 1];
-        rrx[i + 1] =
-            map_table[1] * x[k + 1] * x[k + 1] + map_table[6] * x[k +
-                                                                  2] * x[k +
-                                                                         2];
-        rrx[i + 2] =
-            map_table[2] * x[k + 2] * x[k + 2] + map_table[5] * x[k +
-                                                                  3] * x[k +
-                                                                         3];
-        rrx[i + 3] =
-            map_table[3] * x[k + 3] * x[k + 3] + map_table[4] * x[k +
-                                                                  4] * x[k +
-                                                                         4];
-        rrx[i + 4] =
-            map_table[4] * x[k + 4] * x[k + 4] + map_table[3] * x[k +
-                                                                  5] * x[k +
-                                                                         5];
-        rrx[i + 5] =
-            map_table[5] * x[k + 5] * x[k + 5] + map_table[2] * x[k +
-                                                                  6] * x[k +
-                                                                         6];
-        rrx[i + 6] =
-            map_table[6] * x[k + 6] * x[k + 6] + map_table[1] * x[k +
-                                                                  7] * x[k +
-                                                                         7];
-        rrx[i + 7] =
-            map_table[7] * x[k + 7] * x[k + 7] + map_table[0] * x[k +
-                                                                  8] * x[k +
-                                                                         8];
-    }
+	for ( k = 0, i = 0; i < npolar; i += 8, k += 9 )
+	{
+		rrx[i] =
+			map_table[0] * x[k] * x[k] + map_table[7] * x[k + 1] * x[k + 1];
+		rrx[i + 1] =
+			map_table[1] * x[k + 1] * x[k + 1] + map_table[6] * x[k +
+																  2] * x[k +
+																		 2];
+		rrx[i + 2] =
+			map_table[2] * x[k + 2] * x[k + 2] + map_table[5] * x[k +
+																  3] * x[k +
+																		 3];
+		rrx[i + 3] =
+			map_table[3] * x[k + 3] * x[k + 3] + map_table[4] * x[k +
+																  4] * x[k +
+																		 4];
+		rrx[i + 4] =
+			map_table[4] * x[k + 4] * x[k + 4] + map_table[3] * x[k +
+																  5] * x[k +
+																		 5];
+		rrx[i + 5] =
+			map_table[5] * x[k + 5] * x[k + 5] + map_table[2] * x[k +
+																  6] * x[k +
+																		 6];
+		rrx[i + 6] =
+			map_table[6] * x[k + 6] * x[k + 6] + map_table[1] * x[k +
+																  7] * x[k +
+																		 7];
+		rrx[i + 7] =
+			map_table[7] * x[k + 7] * x[k + 7] + map_table[0] * x[k +
+																  8] * x[k +
+																		 8];
+	}
 
 }
 
@@ -1055,60 +1055,60 @@ map_xform ( float x[], float rrx[], int npolar )
 int
 ifnc_inverse_gsf_snr2 ( int *qx, float *x, int n )
 {
-    int i, g;
-    float sqq, sqx, q;
+	int i, g;
+	float sqq, sqx, q;
 
 // do not call if ixmax = 0 !
 
-    sqq = sqx = 0;
-    for ( i = 0; i < n; i++ )
-    {
-        if ( qx[i] < 256 )
-        {
-            q = look_ix43[qx[i]];
-        }
-        else
-        {
-            q = ( float ) ( pow ( qx[i], ( 4.0 / 3.0 ) ) );
-        }
-        sqq += q * q;
-        sqx += q * x[i];
-    }
+	sqq = sqx = 0;
+	for ( i = 0; i < n; i++ )
+	{
+		if ( qx[i] < 256 )
+		{
+			q = look_ix43[qx[i]];
+		}
+		else
+		{
+			q = ( float ) ( pow ( qx[i], ( 4.0 / 3.0 ) ) );
+		}
+		sqq += q * q;
+		sqx += q * x[i];
+	}
 
-// result scaled by 8*1024, (8<<13) = scaled g_offset 
-    g = 109 * mbLogC ( sqx / sqq ) + ( 8 << 13 );
+// result scaled by 8*1024, (8<<13) = scaled g_offset
+	g = 109 * mbLogC ( sqx / sqq ) + ( 8 << 13 );
 
-    return g;
+	return g;
 }
 
 /*---------------------------------------------------------------*/
 int
 ifnc_inverse_gsf_xfer2 ( int *qx, float *x, int n )
 {
-    int i, g;
-    float sqq, sxx, q;
+	int i, g;
+	float sqq, sxx, q;
 
 // do not call if ixmax = 0 !
 
-    sqq = sxx = 0;
-    for ( i = 0; i < n; i++ )
-    {
-        if ( qx[i] < 256 )
-        {
-            q = look_ix43[qx[i]];
-        }
-        else
-        {
-            q = ( float ) ( pow ( qx[i], ( 4.0 / 3.0 ) ) );
-        }
-        sqq += q * q;
-        sxx += x[i] * x[i];
-    }
+	sqq = sxx = 0;
+	for ( i = 0; i < n; i++ )
+	{
+		if ( qx[i] < 256 )
+		{
+			q = look_ix43[qx[i]];
+		}
+		else
+		{
+			q = ( float ) ( pow ( qx[i], ( 4.0 / 3.0 ) ) );
+		}
+		sqq += q * q;
+		sxx += x[i] * x[i];
+	}
 
-// result scaled by 8*1024, (8<<13) = scaled g_offset 
-    g = 54 * mbLogC ( sxx / sqq ) + ( 8 << 13 );
+// result scaled by 8*1024, (8<<13) = scaled g_offset
+	g = 54 * mbLogC ( sxx / sqq ) + ( 8 << 13 );
 
-    return g;
+	return g;
 }
 
 /*---------------------------------------------------------------*/
