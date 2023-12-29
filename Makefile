@@ -28,7 +28,7 @@ AR=ar
 CFLAGS_REL=-Os -Ofast -c -I$(SRC_PREFIX)/pub -DIEEE_FLOAT
 CFLAGS_DEB=-g -O0 -DDEBUG -c -I$(SRC_PREFIX)/pub -DIEEE_FLOAT
 CFLAGS_PRF=$(CFLAGS_REL) -g -pg
-LFLAGS=-lm -lstdc++ -s
+LFLAGS=-lm -lmsvcrt -lstdc++ -s -ffreestanding -fno-rtti -fno-exceptions -Wl,--gc-sections -static
 SFLAGS=-s -g -S -d --strip-dwo --strip-unneeded -M -p
 UFLAGS=-9 --ultra-brute -v
 
@@ -71,11 +71,12 @@ $(DIR_REL)/$(ALIB): $(OBJS_LIB_REL)
 
 $(DIR_REL)/$(EXE_REL): $(OBJS_LIB_REL) $(OBJS_APP_REL)
 	$(CC) -o $@ $^ $(LFLAGS)
-	strip $(SLFAGS) -- $@.exe
+	strip $(SFLAGS) -- $@.exe
 	@if [ -e $(FASTGH3_TOOLS)/$(FASTGH3_HELIX) ]; then\
 		rm -f $(FASTGH3_TOOLS)/$(FASTGH3_HELIX);\
 		upx $(UFLAGS) $@.exe -o$(FASTGH3_TOOLS)/$(FASTGH3_HELIX);\
 	fi
+	pelook $@.exe
 
 # Debug
 
