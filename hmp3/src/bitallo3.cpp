@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****
- * Source last modified: $Id: bitallo3.cpp,v 1.2 2005/08/09 20:43:41 karll Exp $
+ * Source last modified: 2024-03-14, Case
  *
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.
  *
@@ -11,9 +11,9 @@
  * Source License (the "RCSL") available at
  * http://www.helixcommunity.org/content/rcsl, in which case the RCSL
  * will apply. You may also obtain the license terms directly from
- * RealNetworks.  You may not use this file except in compliance with
+ * RealNetworks. You may not use this file except in compliance with
  * the RPSL or, if you have a valid RCSL with RealNetworks applicable
- * to this file, the RCSL.  Please see the applicable RPSL or RCSL for
+ * to this file, the RCSL. Please see the applicable RPSL or RCSL for
  * the rights, obligations and limitations governing use of the
  * contents of the file.
  *
@@ -29,7 +29,7 @@
  * ENJOYMENT OR NON-INFRINGEMENT.
  *
  * Technology Compatibility Kit Test Suite(s) Location:
- *    http://www.helixcommunity.org/content/tck
+ *   http://www.helixcommunity.org/content/tck
  *
  * Contributor(s):
  *
@@ -43,19 +43,19 @@ extern "C"
 }
 
 //extern "C" {
-//    void start_clock();
-//    void end_clock();
+//	  void start_clock();
+//	  void end_clock();
 //}
 
 static int cnt1, cnt2, cnt3, cnt4, cnt5, cnt6, cnt7, cnt8, cnt9;// test vars
-static int cnt10, cnt11, cnt12, cnt13, cnt14, cnt15, cnt16;     // test vars
+static int cnt10, cnt11, cnt12, cnt13, cnt14, cnt15, cnt16;		// test vars
 
 // mnrGold applies to old fft acoustic model
 // Neal's "mnrGOLD.txt" selective mnr adjustment 10/25/99
 // based on VBR-1  ver 4.0 (v17) X6 (base taperNT given below
 // positive adjustments in centiBells.
-//    for(i=11;i<22;i++)
-//        taperNT[i] = 100 + HX_MIN(150, 20*(i-11));  // base line as of 8/99
+//	  for(i=11;i<22;i++)
+//		  taperNT[i] = 100 + HX_MIN(150, 20*(i-11));  // base line as of 8/99
 static const int mnrGOLD[22] = {
 	-5, 0, 0, 0, 0, 0,
 	0, 0, 0, 3, 5, 5, 5,
@@ -75,7 +75,7 @@ extern "C"
 	float look_ix43[256];
 }
 
-static const float sparse_table[22] = {       // based on snr in bands
+static const float sparse_table[22] = {		  // based on snr in bands
 //0.0014f, 0.0026f, 0.0042f, 0.007f, 0.025f,
 	0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
 	0.05f, 0.05f, 0.05f, 0.05f, 0.05f, 0.05f,
@@ -85,31 +85,31 @@ static const float sparse_table[22] = {       // based on snr in bands
 };
 
 static const int sf_limit[6][22] = {
-	{   // scale = 0, preemp = 0
+	{	// scale = 0, preemp = 0
 	 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31,
 	 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
 	 },
-	{   // scale = 0, premp = 1
+	{	// scale = 0, premp = 1
 	 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31,
 	 15 + 2 * 1, 15 + 2 * 1, 15 + 2 * 1, 15 + 2 * 1, 15 + 2 * 2,
 	 15 + 2 * 2, 15 + 2 * 3, 15 + 2 * 3, 15 + 2 * 3, 15 + 2 * 2, 15,
 	 },
 
-	{   // scale = 1 pre = 0
-	 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62,        // use 62 & 30 or 63 & 31 ??
+	{	// scale = 1 pre = 0
+	 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62,		// use 62 & 30 or 63 & 31 ??
 	 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
 	 },
-	{   // scale = 1 pre = 1
+	{	// scale = 1 pre = 1
 	 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62,
 	 30 + 4 * 1, 30 + 4 * 1, 30 + 4 * 1, 30 + 4 * 1, 30 + 4 * 2,
 	 30 + 4 * 2, 30 + 4 * 3, 30 + 4 * 3, 30 + 4 * 3, 30 + 4 * 2, 30,
 	 },
-	{   // scale = 0, premp = 1  lower limits
+	{	// scale = 0, premp = 1	 lower limits
 	 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	 2 * 1, 2 * 1, 2 * 1, 2 * 1, 2 * 2,
 	 2 * 2, 2 * 3, 2 * 3, 2 * 3, 2 * 2, 0,
 	 },
-	{   // scale = 1 pre = 1
+	{	// scale = 1 pre = 1
 	 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	 4 * 1, 4 * 1, 4 * 1, 4 * 1, 4 * 2,
 	 4 * 2, 4 * 3, 4 * 3, 4 * 3, 4 * 2, 0,
@@ -118,20 +118,20 @@ static const int sf_limit[6][22] = {
 
 // ATTENTION: might be overwritten later on
 static int sf_upper_limit[2][2][22] = { // limit[scale][preemp]
-	{{  // scale = 0, preemp = 0
+	{{	// scale = 0, preemp = 0
 	  30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
 	  14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14,
 	  },
-	 {  // scale = 0, premp = 1
+	 {	// scale = 0, premp = 1
 	  30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
 	  14 + 2 * 1, 14 + 2 * 1, 14 + 2 * 1, 14 + 2 * 1, 14 + 2 * 2,
 	  14 + 2 * 2, 14 + 2 * 3, 14 + 2 * 3, 14 + 2 * 3, 14 + 2 * 2, 14,
 	  }},
-	{{  // scale = 1 pre = 0
+	{{	// scale = 1 pre = 0
 	  60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60,
 	  28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28,
 	  },
-	 {  // scale = 1 pre = 1
+	 {	// scale = 1 pre = 1
 	  60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60,
 	  28 + 4 * 1, 28 + 4 * 1, 28 + 4 * 1, 28 + 4 * 1, 28 + 4 * 2,
 	  28 + 4 * 2, 28 + 4 * 3, 28 + 4 * 3, 28 + 4 * 3, 28 + 4 * 2, 28}},
@@ -140,20 +140,20 @@ static int sf_upper_limit[2][2][22] = { // limit[scale][preemp]
 // ATTENTION: might be overwritten later on
 //----------
 static int sf_lower_limit[2][2][22] = {
-	{{  // scale = 0, preemp = 0
+	{{	// scale = 0, preemp = 0
 	  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	  },
-	 {  // scale = 0, premp = 1
+	 {	// scale = 0, premp = 1
 	  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	  2 * 1, 2 * 1, 2 * 1, 2 * 1, 2 * 2,
 	  2 * 2, 2 * 3, 2 * 3, 2 * 3, 2 * 2, 0,
 	  }},
-	{{  // scale = 1 pre = 0
+	{{	// scale = 1 pre = 0
 	  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	  },
-	 {  // scale = 1 pre = 1
+	 {	// scale = 1 pre = 1
 	  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	  4 * 1, 4 * 1, 4 * 1, 4 * 1, 4 * 2,
 	  4 * 2, 4 * 3, 4 * 3, 4 * 3, 4 * 2, 0,
@@ -208,34 +208,34 @@ static float factor_table[16] = {
 	1.0f / ( 15.5f + 0.00269f ),
 };
 static int target_table[16] = {
-	0,   // 0
-	1,   // 1
-	2,   // 2
-	3,   // 3
-	3,   // 4
-	5,   // 5
-	5,   // 6
-	7,   // 7
-	7,   // 8
-	7,   // 9
-	7,   // 10
-	15,  // 11
-	15,  // 12
-	15,  // 13
-	15,  // 14
-	15,  // 15
+	0,	 // 0
+	1,	 // 1
+	2,	 // 2
+	3,	 // 3
+	3,	 // 4
+	5,	 // 5
+	5,	 // 6
+	7,	 // 7
+	7,	 // 8
+	7,	 // 9
+	7,	 // 10
+	15,	 // 11
+	15,	 // 12
+	15,	 // 13
+	15,	 // 14
+	15,	 // 15
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 // Public Functions
 ///////////////////////////////////////////////////////////////////////////////
-CBitAllo3::CBitAllo3 (  ):CBitAllo (  ),
+CBitAllo3::CBitAllo3 (	):CBitAllo (  ),
 hq_flag ( 1 ),
 ill_is_pos ( 7 ), ms_correlation_memory ( 0 ), int_dummy ( 0 )
 {
-	nsf[0] = nsf[1] = 21;       // in base class
+	nsf[0] = nsf[1] = 21;		// in base class
 	nsf2[0] = nsf2[1] = 21;
-	nsf3[0] = nsf3[1] = 21;     // stereo hf allo
+	nsf3[0] = nsf3[1] = 21;		// stereo hf allo
 
 	memset ( xsxx, 0, sizeof ( xsxx ) );
 	memset ( xsxxms, 0, sizeof ( xsxxms ) );
@@ -250,7 +250,7 @@ ill_is_pos ( 7 ), ms_correlation_memory ( 0 ), int_dummy ( 0 )
 	memset ( gzero, 0, sizeof ( gzero ) );
 	memset ( gmin, 0, sizeof ( gmin ) );
 	memset ( gsf, 0, sizeof ( gsf ) );
-//memset(gsfq               , 0, sizeof(gsfq             ) );
+//memset(gsfq				, 0, sizeof(gsfq			 ) );
 	memset ( sf, 0, sizeof ( sf ) );
 	memset ( G, 0, sizeof ( G ) );
 	memset ( active_sf, 0, sizeof ( active_sf ) );
@@ -261,13 +261,13 @@ ill_is_pos ( 7 ), ms_correlation_memory ( 0 ), int_dummy ( 0 )
 
 }
 
-CBitAllo3::~CBitAllo3 (  )
+CBitAllo3::~CBitAllo3 (	 )
 {
 }
 
 /*===============================================================*/
 void
-CBitAllo3::ba_out_stats (  )    // test routine
+CBitAllo3::ba_out_stats (  )	// test routine
 {
 
 	cnt1 = call_count;
@@ -275,12 +275,12 @@ CBitAllo3::ba_out_stats (  )    // test routine
 
 	cnt13 = ( 100 * cnt2 + ( cnt1 >> 1 ) ) / cnt1;
 
-	fprintf(stderr, "\n ba long  %6d %6d %6d %6d %6d %6d %6d %6d %6d",
+	fprintf(stderr, "\n ba long	 %6d %6d %6d %6d %6d %6d %6d %6d %6d",
 			 cnt1, cnt2, cnt3, cnt4, cnt5, cnt6, cnt7, cnt8, cnt9 );
-	fprintf(stderr, "\n ba long  cnt10  %6d %6d %6d %6d %6d %6d %6d",
+	fprintf(stderr, "\n ba long	 cnt10	%6d %6d %6d %6d %6d %6d %6d",
 			 cnt10, cnt11, cnt12, cnt13, cnt14, cnt15, cnt16 );
 
-	BitAlloShort.ba_out_stats (  );
+	BitAlloShort.ba_out_stats (	 );
 }
 
 /*===============================================================*/
@@ -291,7 +291,7 @@ CBitAllo3::BitAlloInit ( BA_CONTROL & bac )
 
 	cnt7 = 9999;
 
-	ba_control = bac;   // copy to local, access to test1/2/3
+	ba_control = bac;	// copy to local, access to test1/2/3
 
 // init short block allocation
 	BitAlloShort.BitAlloInit ( bac );
@@ -300,23 +300,23 @@ CBitAllo3::BitAlloInit ( BA_CONTROL & bac )
 	ms_count = 0;
 	huff_bits[0] = huff_bits[1] = 0;
 
-	MNR = initialMNR = bac.initialMNR;  // MNR initial MNR in mb, 1db = 100mb
+	MNR = initialMNR = bac.initialMNR;	// MNR initial MNR in mb, 1db = 100mb
 	vbr_flag = bac.vbr_flag;
-	h_id = bac.h_id;    // mpeg1=1
-	is_flag = bac.is_flag;      // intensity stereo
+	h_id = bac.h_id;	// mpeg1=1
+	is_flag = bac.is_flag;		// intensity stereo
 	hf_flag = bac.hf_flag;
-//hf_flag = 0;  // no hf, bad for quality, also needs testing with this BitAllo
+//hf_flag = 0;	// no hf, bad for quality, also needs testing with this BitAllo
 
 	PoolFraction = 614; // fraction*1024
 	if ( vbr_flag == 0 )
-		PoolFraction = 0;       // fraction*1024
+		PoolFraction = 0;		// fraction*1024
 
 	if ( h_id )
-	{   // mpeg1
+	{	// mpeg1
 		ill_is_pos = 7;
 	}
 	else
-	{   // mpeg2
+	{	// mpeg2
 		ill_is_pos = 999;
 	}
 
@@ -342,10 +342,10 @@ CBitAllo3::BitAlloInit ( BA_CONTROL & bac )
 		k += nBand_l[i];
 	}
 	startBand_l[i] = k;
-	startBand_l[i + 1] = 576;   // [22] and [23] are 576
+	startBand_l[i + 1] = 576;	// [22] and [23] are 576
 
 	for ( k = 0, i = 0; i < 13; i++ )
-	{   // only needed for short
+	{	// only needed for short
 		startBand_s[i] = k;
 		k += nBand_s[i];
 	}
@@ -365,7 +365,7 @@ CBitAllo3::BitAlloInit ( BA_CONTROL & bac )
 
 	for ( i = 0; i < 128; i++ )
 	{
-		look_gain[i] = ( float ) ( pow ( 2.0, 0.25 * ( i - g_offset ) ) );      /* note offset, 8=4x */
+		look_gain[i] = ( float ) ( pow ( 2.0, 0.25 * ( i - g_offset ) ) );		/* note offset, 8=4x */
 		look_34igain[i] =
 			( float ) ( 1.0 / pow ( (double) look_gain[i], (double)( 3.0 / 4.0 ) ) );
 	}
@@ -397,18 +397,18 @@ gzero = 1 + 16/(3*ln(2))*(ln(x34max)-ln(.5946)) + g_offset;
 con2r for mbLogC + round_to_int(), includes round up + mbLogC eps
 con0 not used with mbLogC implementation
 uses x34 with goffset = 100
-   0 con1 con2   0.017716950 104.000000  con2r  104.585000
-   1 con1 con2   0.017716950  96.737957  con2r   97.322957
-   2 con1 con2   0.017716950  92.898457  con2r   93.483457
-   3 con1 con2   0.017716950  90.334612  con2r   90.919612
-   4 con1 con2   0.017716950  88.411238  con2r   88.996238
-   5 con1 con2   0.017716950  86.872435  con2r   87.457435
-   6 con1 con2   0.017716950  85.590068  con2r   86.175068
-   7 con1 con2   0.017716950  84.490884  con2r   85.075884
+   0 con1 con2	 0.017716950 104.000000	 con2r	104.585000
+   1 con1 con2	 0.017716950  96.737957	 con2r	 97.322957
+   2 con1 con2	 0.017716950  92.898457	 con2r	 93.483457
+   3 con1 con2	 0.017716950  90.334612	 con2r	 90.919612
+   4 con1 con2	 0.017716950  88.411238	 con2r	 88.996238
+   5 con1 con2	 0.017716950  86.872435	 con2r	 87.457435
+   6 con1 con2	 0.017716950  85.590068	 con2r	 86.175068
+   7 con1 con2	 0.017716950  84.490884	 con2r	 85.075884
 gz_con1 = 0.017716950f;
 gz_con2 = 104.585000f;
 ---------------*/
-	gz_con1B = 0.017716950f;    // gz_con1B from AAC
+	gz_con1B = 0.017716950f;	// gz_con1B from AAC
 	gz_con2B = ( 104.585000f - 100.0f + 8.0f );
 
 	for ( i = 0; i < 22; i++ )
@@ -417,16 +417,16 @@ gz_con2 = 104.585000f;
 	if ( bac.disable_taper )
 	{
 		if ( h_id == 0 )
-		{       // mpeg2
+		{		// mpeg2
 			for ( i = 0; i < 22; i++ )
 				taperNT[i] = 0;
 		}
 	}
 	else
-	{   // for old/slow/fft acoustic model
+	{	// for old/slow/fft acoustic model
 		for ( i = 11; i < 22; i++ )
 		{
-			taperNT[i] = 100 + HX_MIN ( 150, 20 * ( i - 11 ) );    // base line as of 8/99
+			taperNT[i] = 100 + HX_MIN ( 150, 20 * ( i - 11 ) );	   // base line as of 8/99
 		}
 		if ( vbr_flag )
 		{
@@ -444,11 +444,11 @@ gz_con2 = 104.585000f;
 	}
 
 	if ( h_id == 1 )
-	{   // mpeg-1
+	{	// mpeg-1
 		initialMNR = MNR = MNR + bac.MNRbias;
 	}
 	else
-	{   //  mpeg-2 need lower mnr for vbr values relative to nominal bitrates
+	{	//	mpeg-2 need lower mnr for vbr values relative to nominal bitrates
 		initialMNR = MNR = MNR + bac.MNRbias - 300;
 	}
 
@@ -476,7 +476,7 @@ gz_con2 = 104.585000f;
 		NTadjust[0][i] = NTadjust[1][i] = 0;
 	}
 
-	return nsf[1];      // for use by pack sf mpeg2
+	return nsf[1];		// for use by pack sf mpeg2
 }
 
 //==================================================================
@@ -499,7 +499,7 @@ CBitAllo3::BitAllo ( float xr_arg[][576], SIG_MASK sm_arg[][36],
 // at this time block_type must be same in both channels
 	block_type = gr_data[0].block_type;
 
-	call_count++;       // this used by mnr_feedback
+	call_count++;		// this used by mnr_feedback
 
 	deltaMNR = 0;
 
@@ -563,7 +563,7 @@ CBitAllo3::BitAllo ( float xr_arg[][576], SIG_MASK sm_arg[][36],
 	ix = ix_arg;
 	nchan = nchan_arg;
 
-	maxBits = HX_MIN ( 4000 * nchan, max_bits_arg );       /* must not exceed */
+	maxBits = HX_MIN ( 4000 * nchan, max_bits_arg );	   /* must not exceed */
 	/* 4000*nchan is for part23 */
 	minTargetBits = min_bits_arg;
 	if ( minTargetBits < 0 )
@@ -580,14 +580,14 @@ CBitAllo3::BitAllo ( float xr_arg[][576], SIG_MASK sm_arg[][36],
 	}
 	tbits = ( ( PoolFraction * PoolBits ) >> 10 );
 	if ( vbr_flag == 0 )
-	{   // don't allow very high mnrs to use bit pool
+	{	// don't allow very high mnrs to use bit pool
 		t = HX_MAX ( ( 2050 - 500 ) + initialMNR - MNR, 200 );
 		tbits = HX_MIN ( tbits, t );
 	}
 	maxTargetBits = TargetBits + tbits;
 	maxTargetBits = HX_MIN ( maxBits, maxTargetBits );
 	if ( MNR < -200 )
-	{   //
+	{	//
 		minTargetBits = HX_MAX ( minTargetBits, ( 3 * TargetBits ) >> 2 );
 	}
 	maxTargetBits = HX_MAX ( minTargetBits, maxTargetBits );
@@ -623,9 +623,9 @@ CBitAllo3::BitAllo ( float xr_arg[][576], SIG_MASK sm_arg[][36],
 			gr_data[i].big_values = 0;
 			gr_data[i].region0_count = 0;
 			gr_data[i].region1_count = 0;
-			gr_data[i].count1table_select = 0;  // changed to 0 10/27/98
+			gr_data[i].count1table_select = 0;	// changed to 0 10/27/98
 			gr_data[i].aux_nquads = 0;
-			gr_data[i].aux_bits = 0;    /* zero huff bits */
+			gr_data[i].aux_bits = 0;	/* zero huff bits */
 			gr_data[i].aux_not_null = 0;
 			gr_data[i].aux_nreg[0] = 0;
 			gr_data[i].aux_nreg[1] = 0;
@@ -650,7 +650,7 @@ CBitAllo3::BitAllo ( float xr_arg[][576], SIG_MASK sm_arg[][36],
 	output_sf ( sf_out );
 
 	if ( ms_flag )
-	{   // compensate for lack of sqrt(2) scaling
+	{	// compensate for lack of sqrt(2) scaling
 		G[0] -= 2;
 		G[1] -= 2;
 	}
@@ -665,13 +665,13 @@ CBitAllo3::BitAllo ( float xr_arg[][576], SIG_MASK sm_arg[][36],
 		gr_data[i].mixed_block_flag = 0;
 		gr_data[i].preflag = preemp[i];
 		gr_data[i].scalefac_scale = scalefactor_scale[i];
-		gr_data[i].aux_bits = huff_bits[i];     /* huff bits */
+		gr_data[i].aux_bits = huff_bits[i];		/* huff bits */
 		gr_data[i].aux_not_null = huff_bits[i]; /* huff bits */
 		output_subdivide2 ( &gr_data[i], i );
 	}
 
 	if ( is_flag )
-	{   // must encode right sf even if huff_bit = 0
+	{	// must encode right sf even if huff_bit = 0
 		gr_data[1].aux_not_null = 1;
 	}
 
@@ -798,7 +798,7 @@ CBitAllo3::output_sf ( SCALEFACT sf_out[] )
 		{
 			if ( ixmax[1][i] > 0 )
 				break;
-			sf[1][i] = ill_is_pos;      // set illegal is_pos
+			sf[1][i] = ill_is_pos;		// set illegal is_pos
 		}
 	}
 
@@ -854,11 +854,11 @@ CBitAllo3::startup ( SIG_MASK sm[][36], unsigned char signx[][576] )
 			{
 				activeBands += nBand_l[i];
 				mask = mbLogB ( sm[ch][i].mask ) - look_log_cbwmb[i];
-				NT[ch][i] = mask - mnr + taperNT[i];    // noise target
+				NT[ch][i] = mask - mnr + taperNT[i];	// noise target
 				// dropout prevention
 				tsnr = Noise0[ch][i] - NT[ch][i];
 				if ( tsnr < 300 )
-				{       // [-500,300] -> [0,300]
+				{		// [-500,300] -> [0,300]
 					tsnr = 187 + ( ( 3 * tsnr ) >> 3 ) - tsnr;
 					NT[ch][i] -= tsnr;
 				}
@@ -873,9 +873,9 @@ CBitAllo3::startup ( SIG_MASK sm[][36], unsigned char signx[][576] )
 
 //-------------------------------------------
 //
-//  gzero:  gsf >= gzero -> ixmax = 0 (i.e. will quant to zero)
-//          but note converse does not apply
-//  gmin:   gsf < gmin may exceed max allowed quantized value
+//	gzero:	gsf >= gzero -> ixmax = 0 (i.e. will quant to zero)
+//			but note converse does not apply
+//	gmin:	gsf < gmin may exceed max allowed quantized value
 //
 
 	for ( ch = 0; ch < nchan; ch++ )
@@ -901,11 +901,11 @@ CBitAllo3::startup ( SIG_MASK sm[][36], unsigned char signx[][576] )
 void
 CBitAllo3::startup_ms2 ( SIG_MASK sm[][36], unsigned char signx[][576] )
 {
-	int i, n, ch;
+	int i, n=0, ch;
 	int mnr;
 	float *x, *y;
 	unsigned char *s;
-	float sxx[4];       // left, right, sum, diff
+	float sxx[4];		// left, right, sum, diff
 	int maskL, maskR;
 	int cbwmb;
 	int xNT, Nsum, Ndiff;
@@ -939,13 +939,13 @@ CBitAllo3::startup_ms2 ( SIG_MASK sm[][36], unsigned char signx[][576] )
 	{
 		n = nBand_l[i];
 		fnc_sxx ( x, n, sxx );
-		fnc_ms_process2 ( x, n, s );    //no sqrt(2) scale
+		fnc_ms_process2 ( x, n, s );	//no sqrt(2) scale
 		fnc_sxx ( x, n, sxx + 2 );
 
-		xsxx[0][i] = sxx[0];    // using this
-		xsxx[1][i] = sxx[1];    // this also
-		xsxxms[0][i] = sxx[2];  // using this
-		xsxxms[1][i] = sxx[3];  // this also
+		xsxx[0][i] = sxx[0];	// using this
+		xsxx[1][i] = sxx[1];	// this also
+		xsxxms[0][i] = sxx[2];	// using this
+		xsxxms[1][i] = sxx[3];	// this also
 
 		cbwmb = look_log_cbwmb[i];
 		Noise0L = mbLogB ( sxx[0] ) - cbwmb;
@@ -954,12 +954,12 @@ CBitAllo3::startup_ms2 ( SIG_MASK sm[][36], unsigned char signx[][576] )
 		else
 		{
 			maskL = ( mbLogB ( sm[0][i].mask ) - cbwmb );
-			NTL = maskL - mnr + taperNT[i];     // noise target left
+			NTL = maskL - mnr + taperNT[i];		// noise target left
 
 			// dropout prevention
 			tsnr = Noise0L - NTL;
 			if ( tsnr < 300 )
-			{   // [-500,300] -> [0,300]
+			{	// [-500,300] -> [0,300]
 				tsnr = 187 + ( ( 3 * tsnr ) >> 3 ) - tsnr;
 				NTL -= tsnr;
 			}
@@ -972,12 +972,12 @@ CBitAllo3::startup_ms2 ( SIG_MASK sm[][36], unsigned char signx[][576] )
 		else
 		{
 			maskR = ( mbLogB ( sm[1][i].mask ) - cbwmb );
-			NTR = maskR - mnr + taperNT[i];     // noise target right
+			NTR = maskR - mnr + taperNT[i];		// noise target right
 
 			// dropout prevention
 			tsnr = Noise0R - NTR;
 			if ( tsnr < 300 )
-			{   // [-500,300] -> [0,300]
+			{	// [-500,300] -> [0,300]
 				tsnr = 187 + ( ( 3 * tsnr ) >> 3 ) - tsnr;
 				NTR -= tsnr;
 			}
@@ -1022,7 +1022,7 @@ CBitAllo3::startup_ms2 ( SIG_MASK sm[][36], unsigned char signx[][576] )
 		{
 			NT[0][i] = LogSubber ( xNT, Ndiff );
 			if ( i < 16 )
-				NT[0][i] -= 200;        // x7 baseline 10/25/99
+				NT[0][i] -= 200;		// x7 baseline 10/25/99
 		}
 		if ( Nsum < xNT )
 		{
@@ -1041,9 +1041,9 @@ CBitAllo3::startup_ms2 ( SIG_MASK sm[][36], unsigned char signx[][576] )
 	vect_fpow34 ( xr[0], x34[0], nbmax2[0] );
 	vect_fpow34 ( xr[1], x34[1], nbmax2[1] );
 //
-//  gzero:  gsf >= gzero -> ixmax = 0 (i.e. will quant to zero)
-//          but note converse does not apply
-//  gmin:   gsf < gmin may exceed max allowed quantized value
+//	gzero:	gsf >= gzero -> ixmax = 0 (i.e. will quant to zero)
+//			but note converse does not apply
+//	gmin:	gsf < gmin may exceed max allowed quantized value
 //
 	for ( ch = 0; ch < nchan; ch++ )
 	{
@@ -1066,7 +1066,7 @@ CBitAllo3::startup_ms2 ( SIG_MASK sm[][36], unsigned char signx[][576] )
 
 /*---------------------------------------------------------------*/
 void
-CBitAllo3::startup_adjustNT1B (  )
+CBitAllo3::startup_adjustNT1B (	 )
 {
 	int ch, i, a, na;
 	int ab, nab;
@@ -1142,9 +1142,9 @@ CBitAllo3::noise_seek_initial2 (  )
 		for ( i = 0; i < nsf[ch]; i++ )
 		{
 			NTadjust[ch][i] = HX_MAX ( NTadjust[ch][i], -400 );
-			//NTadjust[ch][i] = HX_MIN(NTadjust[ch][i],  100 );
+			//NTadjust[ch][i] = HX_MIN(NTadjust[ch][i],	 100 );
 			NTadjust[ch][i] = HX_MIN ( NTadjust[ch][i], 400 );
-			g4 = gz_con1B * mbLogC ( x34max[ch][i] ) + ( 88.411238f - 100.0f + 8.0f );  // g4 w/g_offset
+			g4 = gz_con1B * mbLogC ( x34max[ch][i] ) + ( 88.411238f - 100.0f + 8.0f );	// g4 w/g_offset
 			//d = (1.00f/110.5f)*(1800-4*i-(Noise0[ch][i]-NT[ch][i]));
 			//d = (1.00f/110.5f)*(1800-8*i-(Noise0[ch][i]-NT[ch][i]));
 			d = ( 1.00f / 110.5f ) * ( 1800 - 8 * i -
@@ -1239,7 +1239,7 @@ CBitAllo3::increase_noise ( int s0, int n )
 
 /*---------------------------------------------------------------*/
 void
-CBitAllo3::noise_seek_actual (  )
+CBitAllo3::noise_seek_actual (	)
 {
 	int i;
 	int ch;
@@ -1276,7 +1276,7 @@ CBitAllo3::noise_seek_actual (  )
 			else
 			{
 				//gsf[ch][i] = gzero[ch][i];
-				gsf[ch][i] = gzero[ch][i] + 5;  // for increase_bits
+				gsf[ch][i] = gzero[ch][i] + 5;	// for increase_bits
 				Noise[ch][i] = Noise0[ch][i];
 			}
 
@@ -1310,7 +1310,7 @@ CBitAllo3::lucky_noise (  )
 				s = gsf[ch][i] + sdelta;
 				logn = look_log_cbwmb[i];
 				noise = ifnc_noise_actual ( y34, y, s, n, logn );
-				//noise   = ifnc_noise_actualB(y34, y, s, n, logn);
+				//noise	  = ifnc_noise_actualB(y34, y, s, n, logn);
 				if ( noise <= Noise[ch][i] )
 				{
 					Noise[ch][i] = noise;
@@ -1359,7 +1359,7 @@ CBitAllo3::big_lucky_noise (  )
 		y34 = x34[ch];
 		y = xr[ch];
 		m = HX_MIN ( 13, nsf[ch] );
-		//for(i=0;i<nsf[ch];i++) {   // no help
+		//for(i=0;i<nsf[ch];i++) {	 // no help
 		//for(i=0;i<11;i++) {
 		for ( i = 0; i < m; i++ )
 		{
@@ -1379,7 +1379,7 @@ CBitAllo3::big_lucky_noise (  )
 					if ( g >= g0 )
 						break;
 					noise = ifnc_noise_actual ( y34, y, g, n, logn );
-					//noise   = ifnc_noise_actualB(y34, y, g, n, logn);
+					//noise	  = ifnc_noise_actualB(y34, y, g, n, logn);
 					if ( noise <= NT[ch][i] )
 					{
 						Noise[ch][i] = noise;
@@ -1437,7 +1437,7 @@ CBitAllo3::big_lucky_noise2 (  )
 					if ( g >= g0 )
 						break;
 					noise = ifnc_noise_actual ( y34, y, g, n, logn );
-					//noise   = ifnc_noise_actualB(y34, y, g, n, logn);
+					//noise	  = ifnc_noise_actualB(y34, y, g, n, logn);
 					if ( noise <= NT[ch][i] )
 					{
 						Noise[ch][i] = noise;
@@ -1462,7 +1462,7 @@ CBitAllo3::big_lucky_noise2 (  )
 			}
 		}
 
-	}   // ch loop
+	}	// ch loop
 
 }
 
@@ -1510,7 +1510,7 @@ CBitAllo3::inverse_sf2 (  )
 			}
 		}
 		else
-		{       //  scalefactor_scale[ch] == 1
+		{		//	scalefactor_scale[ch] == 1
 			y = xr[ch];
 			qx = ix[ch];
 			for ( i = 0; i < nsf[ch]; i++ )
@@ -1630,7 +1630,7 @@ CBitAllo3::quantB10x ( int gsf[2][22] ) // used for thresholding
 
 /*===============================================================*/
 void
-CBitAllo3::clear_hf_main (  )
+CBitAllo3::clear_hf_main (	)
 {
 	int i, n;
 	int *qx;
@@ -1737,7 +1737,7 @@ CBitAllo3::quantBhf_ms (  )
 
 /*===============================================================*/
 int
-CBitAllo3::count_bits (  )
+CBitAllo3::count_bits (	 )
 {
 	int ch, bits;
 
@@ -1845,7 +1845,7 @@ CBitAllo3::fnc_sf_final_MPEG1 ( int ch )
 		pre_flag = 1;
 	}
 	else
-	{   // default     out of range - need to be clamped
+	{	// default	   out of range - need to be clamped
 		scale_flag = 1;
 		pre_flag = 0;
 	}
@@ -1876,7 +1876,7 @@ CBitAllo3::fnc_sf_final_MPEG2 ( int ch )
 		}
 	}
 
-	scale_flag = 1;     // assume scale flag needed (could be out of range also)
+	scale_flag = 1;		// assume scale flag needed (could be out of range also)
 	if ( sp0 >= 0 )
 	{
 		scale_flag = 0;
@@ -1889,7 +1889,7 @@ CBitAllo3::fnc_sf_final_MPEG2 ( int ch )
 
 /*----------------------------------------------------------------*/
 int
-CBitAllo3::fnc_scale_factors (  )
+CBitAllo3::fnc_scale_factors (	)
 {
 	int i, ch;
 	int Gtmp, Gtmpmin;
@@ -1897,7 +1897,7 @@ CBitAllo3::fnc_scale_factors (  )
 	int dsf;
 
 // no adjustments made for gsf near gzero,
-//  handled by inverse sf routine
+//	handled by inverse sf routine
 //
 
 	Gtmpmin = 999;
@@ -1909,9 +1909,9 @@ CBitAllo3::fnc_scale_factors (  )
 		Gtmp = gsf_hf_stereo[ch];
 		for ( i = 0; i < nsf[ch]; i++ )
 		{
-			gsf[ch][i] = HX_MAX ( gsf[ch][i], gmin[ch][i] );       // quant overflow protect
+			gsf[ch][i] = HX_MAX ( gsf[ch][i], gmin[ch][i] );	   // quant overflow protect
 			//if( Noise0[ch][i] <= NT[ch][i] ) {
-			//    gsf[ch][i] = gzero[ch][i];
+			//	  gsf[ch][i] = gzero[ch][i];
 			//}
 			active_sf[ch][i] = 0;
 			if ( gsf[ch][i] < gzero[ch][i] )
@@ -1922,7 +1922,7 @@ CBitAllo3::fnc_scale_factors (  )
 		}
 
 		if ( Gtmp < 0 )
-		{       /* null frame for ch */
+		{		/* null frame for ch */
 			for ( i = 0; i < nsf[ch]; i++ )
 			{
 				sf[ch][i] = 0;
@@ -1936,7 +1936,7 @@ CBitAllo3::fnc_scale_factors (  )
 				Gtmpmin = 100;
 			psf_upper_limit[ch] = sf_upper_limit[0][0];
 			psf_lower_limit[ch] = sf_lower_limit[0][0];
-			continue;   // continue channel loop
+			continue;	// continue channel loop
 		}
 
 /* scale factors */
@@ -1953,18 +1953,18 @@ CBitAllo3::fnc_scale_factors (  )
 
 		if ( scalefactor_scale[ch] == 0 )
 		{
-			dsf = 2;    // save for possible use later
+			dsf = 2;	// save for possible use later
 			for ( i = 0; i < nsf[ch]; i++ )
 			{
 				//if( Noise[ch][i] > NT[ch][i] ) sf[ch][i]++;
 				if ( ( i < 11 ) && ( Noise[ch][i] > NT[ch][i] ) )
 					sf[ch][i]++;
-				sf[ch][i] &= ( ~1 );    // non-active will remain 0
+				sf[ch][i] &= ( ~1 );	// non-active will remain 0
 			}
 		}
 		else
 		{
-			dsf = 4;    // save for possible use later
+			dsf = 4;	// save for possible use later
 			for ( i = 0; i < nsf[ch]; i++ )
 			{
 				//if( (i<11) && (Noise[ch][i] > NT[ch][i]) ) sf[ch][i]++;
@@ -1974,7 +1974,7 @@ CBitAllo3::fnc_scale_factors (  )
 				dN = Noise[ch][i] - NT[ch][i] + 150 * d;
 				if ( dN > dNthres[i] )
 					s = s + 4;
-				sf[ch][i] = s & active_sf[ch][i];       // non-active set to zero
+				sf[ch][i] = s & active_sf[ch][i];		// non-active set to zero
 			}
 		}
 
@@ -1995,14 +1995,14 @@ CBitAllo3::fnc_scale_factors (  )
 			{
 				gsf[ch][i] = Gtmp - sf[ch][i];
 				if ( gsf[ch][i] < 0 )
-				{       // sf up rounding could make gsf < 0
-					gsf[ch][i] += dsf;  // in extreem cases of low signals
-					sf[ch][i] -= dsf;   //
+				{		// sf up rounding could make gsf < 0
+					gsf[ch][i] += dsf;	// in extreem cases of low signals
+					sf[ch][i] -= dsf;	//
 					assert ( sf[ch][i] >= psf_lower_limit[ch][i] );
 				}
 				if ( gsf[ch][i] >= gzero[ch][i] )
-				{       // sf may have become inactive
-					gsf[ch][i] = gzero[ch][i] + 5;      // set to g+5 for increase_bits
+				{		// sf may have become inactive
+					gsf[ch][i] = gzero[ch][i] + 5;		// set to g+5 for increase_bits
 					sf[ch][i] = psf_lower_limit[ch][i]; // set to lower, not zero, incase preemp
 				}
 			}
@@ -2012,7 +2012,7 @@ CBitAllo3::fnc_scale_factors (  )
 		if ( Gtmp < Gtmpmin )
 			Gtmpmin = Gtmp;
 
-	}   // end ch loop
+	}	// end ch loop
 
 	return Gtmpmin;
 }
@@ -2027,7 +2027,7 @@ CBitAllo3::fnc_scale_factors_ms (  )
 	int dsf;
 
 // no adjustments made for gsf near gzero,
-//  handled by inverse sf routine
+//	handled by inverse sf routine
 //
 
 	Gtmp = -1;
@@ -2043,9 +2043,9 @@ CBitAllo3::fnc_scale_factors_ms (  )
 /* compute G */
 		for ( i = 0; i < nsf[ch]; i++ )
 		{
-			gsf[ch][i] = HX_MAX ( gsf[ch][i], gmin[ch][i] );       // quant overflow protect
+			gsf[ch][i] = HX_MAX ( gsf[ch][i], gmin[ch][i] );	   // quant overflow protect
 			//if( Noise0[ch][i] <= NT[ch][i] ) {
-			//    gsf[ch][i] = gzero[ch][i];
+			//	  gsf[ch][i] = gzero[ch][i];
 			//}
 			active_sf[ch][i] = 0;
 			if ( gsf[ch][i] < gzero[ch][i] )
@@ -2057,7 +2057,7 @@ CBitAllo3::fnc_scale_factors_ms (  )
 		}
 
 		if ( Gtmp < 0 )
-		{       /* null frame for ch */
+		{		/* null frame for ch */
 			for ( i = 0; i < nsf[ch]; i++ )
 			{
 				sf[ch][i] = 0;
@@ -2070,7 +2070,7 @@ CBitAllo3::fnc_scale_factors_ms (  )
 			Gtmpmin = HX_MIN ( Gtmpmin, 100 );
 			psf_upper_limit[ch] = sf_upper_limit[0][0];
 			psf_lower_limit[ch] = sf_lower_limit[0][0];
-			continue;   // continue channel loop
+			continue;	// continue channel loop
 		}
 
 /* scale factors */
@@ -2087,11 +2087,11 @@ CBitAllo3::fnc_scale_factors_ms (  )
 
 		if ( scalefactor_scale[ch] == 0 )
 		{
-			dsf = 2;    // save sf delta for possible use later
+			dsf = 2;	// save sf delta for possible use later
 			for ( i = 0; i < nsf[ch]; i++ )
 			{
 				if ( active_sf[ch][i] )
-				{       // for gzero stuff
+				{		// for gzero stuff
 					if ( ( gzero[ch][i] - gsf[ch][i] ) < 5 )
 					{
 						sf[ch][i]++;
@@ -2108,11 +2108,11 @@ CBitAllo3::fnc_scale_factors_ms (  )
 		}
 		else
 		{
-			dsf = 4;    // save sf delta for possible use later
+			dsf = 4;	// save sf delta for possible use later
 			for ( i = 0; i < nsf[ch]; i++ )
 			{
 				if ( active_sf[ch][i] )
-				{       // not needed? for gzero stuff?
+				{		// not needed? for gzero stuff?
 					s = sf[ch][i] & ( ~3 );
 					d = sf[ch][i] - s;
 					dN = Noise[ch][i] - NT[ch][i] + 150 * d;
@@ -2122,7 +2122,7 @@ CBitAllo3::fnc_scale_factors_ms (  )
 					}
 					else if ( ( gzero[ch][i] - gsf[ch][i] - d ) < 5 )
 					{
-						s = s + 4;      // do not drop bands near gzero
+						s = s + 4;		// do not drop bands near gzero
 					}
 					sf[ch][i] = s;
 				}
@@ -2146,14 +2146,14 @@ CBitAllo3::fnc_scale_factors_ms (  )
 			{
 				gsf[ch][i] = Gtmp - sf[ch][i];
 				if ( gsf[ch][i] < 0 )
-				{       // sf up rounding could make gsf < 0
-					gsf[ch][i] += dsf;  // in extreem cases of low signals
-					sf[ch][i] -= dsf;   //
+				{		// sf up rounding could make gsf < 0
+					gsf[ch][i] += dsf;	// in extreem cases of low signals
+					sf[ch][i] -= dsf;	//
 					assert ( sf[ch][i] >= psf_lower_limit[ch][i] );
 				}
 				if ( gsf[ch][i] >= gzero[ch][i] )
 				{
-					gsf[ch][i] = gzero[ch][i] + 5;      // set to gz+5 for increase_bits
+					gsf[ch][i] = gzero[ch][i] + 5;		// set to gz+5 for increase_bits
 					sf[ch][i] = psf_lower_limit[ch][i]; // set to lower, not zero, incase preemp
 				}
 			}
@@ -2163,14 +2163,14 @@ CBitAllo3::fnc_scale_factors_ms (  )
 		Gtmpmin = HX_MIN ( Gtmpmin, Gtmp );
 
 		Gtmp = -1;
-	}   // end ch loop
+	}	// end ch loop
 
 	return Gtmpmin;
 }
 
 /*===============================================================*/
 void
-CBitAllo3::trade_side (  )
+CBitAllo3::trade_side (	 )
 {
 	int i;
 	int g, dg;
@@ -2213,7 +2213,7 @@ CBitAllo3::trade_side (  )
 
 /*---------------------------------------------------------------*/
 void
-CBitAllo3::trade_dual (  )
+CBitAllo3::trade_dual (	 )
 {
 	int i, ch;
 	int ixmax0;
@@ -2250,7 +2250,7 @@ CBitAllo3::trade_dual (  )
 			continue;
 		k0 = ( 3 * k1 ) >> 2;
 		if ( k0 < 11 )
-			k0 = 11;    // will need sf lock
+			k0 = 11;	// will need sf lock
 		if ( k0 >= k1 )
 			continue;
 
@@ -2293,20 +2293,20 @@ CBitAllo3::trade_dual (  )
 			}
 		}
 
-	}   //ch loop
+	}	//ch loop
 
 	return;
 }
 
 /*===============================================================*/
 void
-CBitAllo3::ms_sparse (  )
+CBitAllo3::ms_sparse (	)
 {
 	int i;
 
 // 5 changed to 14, 6/5/00 for tmpsax2.wav and gspi35_1
 // n=5 damages snr, these files have extreem tonality with high
-// channel correlation.  Some day: Could adapt sparsing factors
+// channel correlation.	 Some day: Could adapt sparsing factors
 // depending on snr, high snr (very tonal) get little sparsing,
 // noisy (low snr) get high sparsing.
 
@@ -2418,7 +2418,7 @@ CBitAllo3::ms_sparse_quads (  )
 
 /*===============================================================*/
 void
-CBitAllo3::hf_adjust (  )
+CBitAllo3::hf_adjust (	)
 {
 	int i, ch;
 	int gmax, gmax0, gmax1, ig;
@@ -2431,7 +2431,7 @@ CBitAllo3::hf_adjust (  )
 	{
 		// don't attempt on low hf signals
 		if ( gzero[ch][21] <= 8 )
-			continue;   // 3/3/99
+			continue;	// 3/3/99
 		gmax0 = 0;
 		ig = 0;
 		for ( i = 0; i < 11; i++ )
@@ -2598,12 +2598,12 @@ CBitAllo3::increase_bits ( int bits0 )
 			hf_quant_stereo[0] = hf_quant_stereo[1] = 0;
 			gsf_hf_stereo[0] = gsf_hf_stereo[1] = -1;
 			ixmax[0][21] = ixmax[1][21] = 0;
-			hf_adjust (  );
+			hf_adjust (	 );
 		}
-		fnc_scale_factors (  );
+		fnc_scale_factors (	 );
 		quantB ( gsf );
 		if ( hf_quant )
-			quantBhf (  );
+			quantBhf (	);
 		bits = count_bits_dual (  );
 		if ( bits >= thres )
 			break;
@@ -2628,12 +2628,12 @@ CBitAllo3::increase_bits ( int bits0 )
 			hf_quant_stereo[0] = hf_quant_stereo[1] = 0;
 			gsf_hf_stereo[0] = gsf_hf_stereo[1] = -1;
 			ixmax[0][21] = ixmax[1][21] = 0;
-			hf_adjust (  );
+			hf_adjust (	 );
 		}
-		fnc_scale_factors (  );
+		fnc_scale_factors (	 );
 		quantB ( gsf );
 		if ( hf_quant )
-			quantBhf (  );
+			quantBhf (	);
 		bits = count_bits_dual (  );
 	}
 
@@ -2671,16 +2671,16 @@ CBitAllo3::increase_bits_ms ( int bits0 )
 		hf_quant = 0;
 		ixmax[0][21] = 0;
 		gsf_hf = -1;
-		clear_hf_main (  );
+		clear_hf_main (	 );
 		if ( hf_flag )
-			hf_adjust_ms (  );
-		fnc_scale_factors_ms (  );
+			hf_adjust_ms (	);
+		fnc_scale_factors_ms (	);
 		quantB ( gsf );
 		ixmax[0][21] = 0;
 		if ( hf_quant )
 			quantBhf_ms (  );
 		//ms_sparse_quads();
-		bits = count_bits (  );
+		bits = count_bits (	 );
 		if ( bits >= thres )
 			break;
 
@@ -2705,16 +2705,16 @@ CBitAllo3::increase_bits_ms ( int bits0 )
 		hf_quant = 0;
 		ixmax[0][21] = 0;
 		gsf_hf = -1;
-		clear_hf_main (  );
+		clear_hf_main (	 );
 		if ( hf_flag )
-			hf_adjust_ms (  );
-		fnc_scale_factors_ms (  );
+			hf_adjust_ms (	);
+		fnc_scale_factors_ms (	);
 		quantB ( gsf );
 		ixmax[0][21] = 0;
 		if ( hf_quant )
 			quantBhf_ms (  );
 		//ms_sparse_quads();
-		bits = count_bits (  );
+		bits = count_bits (	 );
 	}
 
 	return bits;
@@ -2734,9 +2734,9 @@ CBitAllo3::limit_bits ( int bits0 )
 			for ( i = 0; i < nsf[ch]; i++ )
 				gsf[ch][i] = HX_MIN ( 127, gsf[ch][i] + 1 );
 		}
-		fnc_scale_factors (  );
+		fnc_scale_factors (	 );
 		quant ( gsf );
-		bits = count_bits (  );
+		bits = count_bits (	 );
 		if ( bits <= maxBits )
 			break;
 	}
@@ -2746,7 +2746,7 @@ CBitAllo3::limit_bits ( int bits0 )
 
 /*---------------------------------------------------------------*/
 int
-CBitAllo3::limit_part23_bits (  )
+CBitAllo3::limit_part23_bits (	)
 {
 	int i, k, ch;
 	int bits;
@@ -2761,9 +2761,9 @@ CBitAllo3::limit_part23_bits (  )
 					gsf[ch][i] = HX_MIN ( 127, gsf[ch][i] + 1 );
 			}
 		}
-		fnc_scale_factors (  );
+		fnc_scale_factors (	 );
 		quant ( gsf );
-		bits = count_bits (  );
+		bits = count_bits (	 );
 		if ( ( huff_bits[0] <= PART23 ) && ( huff_bits[1] <= PART23 ) )
 			break;
 	}
@@ -2798,10 +2798,10 @@ CBitAllo3::decrease_bits01 ( int bits0 )
 				NT[ch][i] += deltaN;
 			}
 		}
-		noise_seek_actual (  );
-		fnc_scale_factors (  );
+		noise_seek_actual (	 );
+		fnc_scale_factors (	 );
 		quant ( gsf );
-		bits = count_bits (  );
+		bits = count_bits (	 );
 		if ( bits <= thres )
 			break;
 	}
@@ -2837,11 +2837,11 @@ CBitAllo3::decrease_bits ( int bits0 )
 				NT[ch][i] += deltaN;
 			}
 		}
-		noise_seek_actual (  );
-		fnc_scale_factors (  );
+		noise_seek_actual (	 );
+		fnc_scale_factors (	 );
 		quant ( gsf );
 		//quantB(gsf);
-		bits = count_bits (  );
+		bits = count_bits (	 );
 		if ( bits <= maxTargetBits )
 			break;
 		deltaN = ( f * ( bits - maxTargetBits ) ) >> 10;
@@ -2876,13 +2876,13 @@ CBitAllo3::decrease_bits_ms ( int bits0 )
 				NT[ch][i] += deltaN;
 			}
 		}
-		noise_seek_actual (  );
+		noise_seek_actual (	 );
 		//ms_sparse();
-		fnc_scale_factors_ms (  );
+		fnc_scale_factors_ms (	);
 		quant ( gsf );
 		//quantB(gsf);
 		//ms_sparse_quads();
-		bits = count_bits (  );
+		bits = count_bits (	 );
 		if ( bits <= maxTargetBits )
 			break;
 		deltaN = ( f * ( bits - maxTargetBits ) ) >> 10;
@@ -2923,7 +2923,7 @@ CBitAllo3::mnr_feedback ( int activeBands, int bits, int block_type )
 		mnr0 =
 			( int ) ( 0.2 * deltaNB * HX_MAX ( ( minTargetBits - bits ), 0 ) );
 		dmnr = mnr + mnr2 + mnrp - mnr0;
-		maxdmnr = HX_MAX ( MNR - initialMNR, TargetBits >> 3 );    // limit for decrease
+		maxdmnr = HX_MAX ( MNR - initialMNR, TargetBits >> 3 );	   // limit for decrease
 		dmnr = HX_MIN ( dmnr, maxdmnr );
 		if ( deltaMNR )
 		{
@@ -2931,14 +2931,14 @@ CBitAllo3::mnr_feedback ( int activeBands, int bits, int block_type )
 			dmnr = HX_MAX ( dmnr, ddmnr );
 		}
 		MNR = MNR - dmnr;
-		MNR = HX_MIN ( MNR, 2000 );        // for tones
+		MNR = HX_MIN ( MNR, 2000 );		   // for tones
 		if ( bits > ( TargetBits + 2000 ) )
 			MNR = HX_MIN ( MNR, initialMNR );
 	}
 
 //if( block_type == 1 ) {
-//    MNR = HX_MIN(MNR, initialMNR-100);
-//    return;
+//	  MNR = HX_MIN(MNR, initialMNR-100);
+//	  return;
 //}
 
 }
@@ -2953,8 +2953,8 @@ CBitAllo3::allocate (  )
 //int i;
 
 // moved
-//if( MNR < -200 )  {   // re harp.wav
-//    minTargetBits = HX_MAX(minTargetBits, (3*TargetBits)>>2);
+//if( MNR < -200 )	{	// re harp.wav
+//	  minTargetBits = HX_MAX(minTargetBits, (3*TargetBits)>>2);
 //}
 
 	if ( hf_flag )
@@ -2963,20 +2963,20 @@ CBitAllo3::allocate (  )
 		hf_quant_stereo[0] = hf_quant_stereo[1] = 0;
 		gsf_hf_stereo[0] = gsf_hf_stereo[1] = -1;
 		ixmax[0][21] = ixmax[1][21] = 0;
-		clear_hf (  );
+		clear_hf (	);
 	}
 
 	noise_seek_initial2 (  );
 
-	noise_seek_actual (  );
+	noise_seek_actual (	 );
 
 // this may be ok re gspi35-2.wav -b64
 	trade_dual (  );
 
 	if ( hf_flag & 2 )
-		hf_adjust (  );
+		hf_adjust (	 );
 
-	fnc_scale_factors (  );
+	fnc_scale_factors (	 );
 
 	if ( hq_flag == 0 )
 		lucky_noise (  );
@@ -2987,7 +2987,7 @@ CBitAllo3::allocate (  )
 	quantB ( gsf );
 
 	if ( hf_quant )
-		quantBhf (  );
+		quantBhf (	);
 
 	bits0 = bits = count_bits_dual (  );
 //bits0 = bits = count_bits2(3);  // do a faster version of this?
@@ -3010,13 +3010,13 @@ CBitAllo3::allocate (  )
 
 	if ( bits > maxTargetBits )
 	{
-		clear_hf (  );
+		clear_hf (	);
 		bits = decrease_bits ( bits );
 	}
 
 	if ( bits > maxBits )
 	{
-		clear_hf (  );
+		clear_hf (	);
 		bits = limit_bits ( bits );
 	}
 
@@ -3026,15 +3026,15 @@ CBitAllo3::allocate (  )
 		{
 			if ( huff_bits[ch] > PART23 )
 			{
-				clear_hf (  );
-				bits = limit_part23_bits (  );
-				break;  // limit_part23 checks both channels
+				clear_hf (	);
+				bits = limit_part23_bits (	);
+				break;	// limit_part23 checks both channels
 			}
 		}
 	}
 
 	if ( hq_flag )
-		inverse_sf2 (  );       // does not change audio bit count - do last
+		inverse_sf2 (  );		// does not change audio bit count - do last
 
 	cnt3++;
 	cnt4 += bits;
@@ -3052,8 +3052,8 @@ CBitAllo3::allocate_ms (  )
 	int bits0;
 
 // moved
-//if( MNR < -200 )  {   // re harp.wav
-//    minTargetBits = HX_MAX(minTargetBits, (3*TargetBits)>>2);
+//if( MNR < -200 )	{	// re harp.wav
+//	  minTargetBits = HX_MAX(minTargetBits, (3*TargetBits)>>2);
 //}
 
 	if ( hf_flag )
@@ -3061,12 +3061,12 @@ CBitAllo3::allocate_ms (  )
 		hf_quant = 0;
 		ixmax[0][21] = ixmax[1][21] = 0;
 		gsf_hf = -1;
-		clear_hf (  );  // clear both chans incase last igr was dual
+		clear_hf (	);	// clear both chans incase last igr was dual
 	}
 
 	noise_seek_initial2 (  );
 
-	noise_seek_actual (  );
+	noise_seek_actual (	 );
 
 // ms_sparse for i<14 hurts tmpsax2
 // 6/30/00 all sparse and trade functions dropped for gspi35_2.wav -b64
@@ -3077,9 +3077,9 @@ CBitAllo3::allocate_ms (  )
 //trade_main();
 
 	if ( hf_flag )
-		hf_adjust_ms (  );
+		hf_adjust_ms (	);
 
-	fnc_scale_factors_ms (  );
+	fnc_scale_factors_ms (	);
 
 	if ( hq_flag == 0 )
 		lucky_noise (  );
@@ -3089,14 +3089,14 @@ CBitAllo3::allocate_ms (  )
 //quant(gsf);
 	quantB ( gsf );
 
-	ixmax[0][21] = 0;   // ???
+	ixmax[0][21] = 0;	// ???
 	if ( hf_quant )
 		quantBhf_ms (  );
 
 // drop for gspi35_2
 //ms_sparse_quads();  // does own quantB10x in required region
 
-	bits0 = bits = count_bits (  );
+	bits0 = bits = count_bits (	 );
 //bits0 = bits = count_bits2(3);  // do a faster version of this?
 
 	if ( bits < minTargetBits )
@@ -3114,14 +3114,14 @@ CBitAllo3::allocate_ms (  )
 
 	if ( bits > maxTargetBits )
 	{
-		clear_hf_main (  );
+		clear_hf_main (	 );
 		bits = decrease_bits ( bits );
 		//bits = decrease_bits_ms(bits);
 	}
 
 	if ( bits > maxBits )
 	{
-		clear_hf_main (  );
+		clear_hf_main (	 );
 		bits = limit_bits ( bits );
 	}
 
@@ -3131,15 +3131,15 @@ CBitAllo3::allocate_ms (  )
 		{
 			if ( huff_bits[ch] > PART23 )
 			{
-				clear_hf_main (  );
-				bits = limit_part23_bits (  );
-				break;  // limit_part23 checks both channels
+				clear_hf_main (	 );
+				bits = limit_part23_bits (	);
+				break;	// limit_part23 checks both channels
 			}
 		}
 	}
 
 	if ( hq_flag )
-		inverse_sf2 (  );       // does not change audio bit count - do last
+		inverse_sf2 (  );		// does not change audio bit count - do last
 
 	cnt3++;
 	cnt4 += bits;

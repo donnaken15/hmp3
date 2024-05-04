@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****
- * Source last modified: $Id: mp3enc.h,v 1.2 2005/08/09 20:43:45 karll Exp $
+ * Source last modified: 2024-04-10, Case
  *
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.
  *
@@ -13,7 +13,7 @@
  * will apply. You may also obtain the license terms directly from
  * RealNetworks.  You may not use this file except in compliance with
  * the RPSL or, if you have a valid RCSL with RealNetworks applicable
- * to this file, the RCSL.  Please see the applicable RPSL or RCSL for
+ * to this file, the RCSL.	Please see the applicable RPSL or RCSL for
  * the rights, obligations and limitations governing use of the
  * contents of the file.
  *
@@ -29,7 +29,7 @@
  * ENJOYMENT OR NON-INFRINGEMENT.
  *
  * Technology Compatibility Kit Test Suite(s) Location:
- *    http://www.helixcommunity.org/content/tck
+ *	  http://www.helixcommunity.org/content/tck
  *
  * Contributor(s):
  *
@@ -51,7 +51,7 @@
 #include "l3e.h"
 #include "amod.h"
 
-#include "encapp.h"     // E_CONTROL structure, MPEG_HEAD structure
+#include "encapp.h"		// E_CONTROL structure, MPEG_HEAD structure
 
 #include "hxtypes.h"
 
@@ -61,7 +61,7 @@
 
 #include "filter2.h"
 
-#include "srcc.h"       // sample rate converstion
+#include "srcc.h"		// sample rate converstion
 
 typedef struct
 {
@@ -78,7 +78,7 @@ class CMp3Enc
 	CMp3Enc (  );
 
 	//~CMp3Enc() {}
-	~CMp3Enc (  );
+	~CMp3Enc (	);
 
 	//============================
 	// basic encode, 16 bit input, no rate conversion
@@ -91,11 +91,11 @@ class CMp3Enc
 	// Input (pcm[]) is 1152 pcm samples.  Oldest sample at
 	// lowest memory address.  Two channel modes are interleaved
 	// left/right for total of 2*1152 values.
-	// pcm = short (not necessarly 16 bit).
+	// pcm = float (not necessarly 16 bit).
 	// Output (bs_out) is encoded frame.  Returns
 	// bytes removed from pcm, number of bytes encoded.
 	// Output bytes returned may be zero, may be more than one frame.
-	IN_OUT L3_audio_encode ( short *pcm, unsigned char *bs_out );
+	IN_OUT L3_audio_encode ( float *pcm, unsigned char *bs_out );
 
 	// encode reformatted frame (self contained frame)
 	// for streaming network packets
@@ -104,10 +104,10 @@ class CMp3Enc
 	// if packet != NULL packet returns reformatted frame(s)
 	// mpeg-1 returns one frame per call, mpeg-2 returns two frames
 	// per call.  Number of bytes in each frame is given by
-	// nbytes_out[0] and nbytes_out[1].  Second frame (for mpeg2) begins
-	// at packet+nbytes_out[0].  Total bytes written to packet is
+	// nbytes_out[0] and nbytes_out[1].	 Second frame (for mpeg2) begins
+	// at packet+nbytes_out[0].	 Total bytes written to packet is
 	// nbytes_out[0]+nbytes_out[1].
-	IN_OUT L3_audio_encode_Packet ( short *pcm,
+	IN_OUT L3_audio_encode_Packet ( float *pcm,
 									unsigned char *bs_out,
 									unsigned char *packet,
 									int nbytes_out[2] );
@@ -115,7 +115,7 @@ class CMp3Enc
 	//============================
 	// encode with sample rate type conversion
 	// 16 bit/ 8 bit input
-	int MP3_audio_encode_init ( E_CONTROL * ec_arg, int input_type,     // 0=16 bit linear,1=8 bitlinear
+	int MP3_audio_encode_init ( E_CONTROL * ec_arg, int source_bits, int source_is_float,
 								int mpeg_select, int mono_convert );
 
 	// standard encode
@@ -130,12 +130,12 @@ class CMp3Enc
 	//=== public aux routines
 	int L3_audio_encode_get_bitrate (  );
 	float L3_audio_encode_get_bitrate_float (  );
-	float L3_audio_encode_get_bitrate2_float (  );
-	int L3_audio_encode_get_frames (  );
-	void L3_audio_encode_info_ec ( E_CONTROL * ec );    /* info only */
-	void L3_audio_encode_info_head ( MPEG_HEAD * head );        /* info only */
-	void L3_audio_encode_info_string ( char *s );       /* info only */
-	INT_PAIR L3_audio_encode_get_frames_bytes (  );
+	float L3_audio_encode_get_bitrate2_float (	);
+	unsigned int L3_audio_encode_get_frames (  );
+	void L3_audio_encode_info_ec ( E_CONTROL * ec );	/* info only */
+	void L3_audio_encode_info_head ( MPEG_HEAD * head );		/* info only */
+	void L3_audio_encode_info_string ( char *s );		/* info only */
+	INT_PAIR L3_audio_encode_get_frames_bytes (	 );
 
 	//=== test routine
 	void out_stats (  );
@@ -150,14 +150,14 @@ class CMp3Enc
 
 /*---- setup data -----*/
 
-	int tot_frames_out;
-	int tot_bytes_out;
-	int ave_tot_bytes_out;      // running average
+	unsigned int tot_frames_out;
+	unsigned int tot_bytes_out;
+	int ave_tot_bytes_out;		// running average
 
 //int channel_adder_n;
 //int channel_adder_nstart;
 
-	int ivbr_min;       // min and max vbr bitrate_index
+	int ivbr_min;		// min and max vbr bitrate_index
 	int ivbr_max;
 	int vbr_main_framebytes[16];
 	int vbr_framebytes[16];
@@ -211,21 +211,21 @@ class CMp3Enc
 //float xpmeas[512+4];
 //float *pmeas;
 
-	float eng[3][64];   // sized [3] for use by short, [2] required for long
-	int nsum[68];       // epart table
-	SPD_CNTL spd_cntl[65];      // spd, spread fnc
-	float w_spd[2200];  // spd, probably bigger that necessary
-	float ecsave[2][2][64];     // snr
-//SNR_TABLE2 tv[64];          // snr.c
-//int snr_npart;              // snr
-//MAP_TABLE map[21];          // smr
+	float eng[3][64];	// sized [3] for use by short, [2] required for long
+	int nsum[68];		// epart table
+	SPD_CNTL spd_cntl[65];		// spd, spread fnc
+	float w_spd[2200];	// spd, probably bigger that necessary
+	float ecsave[2][2][64];		// snr
+//SNR_TABLE2 tv[64];		  // snr.c
+//int snr_npart;			  // snr
+//MAP_TABLE map[21];		  // smr
 
-	int nsumShort[68];  // epart table
+	int nsumShort[68];	// epart table
 	SPD_CNTL spd_cntlShort[65]; // spd, spread fnc
-	float w_spdShort[1000];     // spd, probably bigger that necessary
+	float w_spdShort[1000];		// spd, probably bigger that necessary
 
-//float zgeobuf[2][2][2*256];    // for long geo pred, size fixed in pred code
-//float xzgeobuf[2*2*2*256+4];    // for long geo pred, size fixed in pred code
+//float zgeobuf[2][2][2*256];	 // for long geo pred, size fixed in pred code
+//float xzgeobuf[2*2*2*256+4];	  // for long geo pred, size fixed in pred code
 //typedef float ZGEOBUF[2][2*256];
 //ZGEOBUF *zgeobuf;
 
@@ -238,57 +238,57 @@ class CMp3Enc
 
 //---------- audio buffers
 // buf increased one granule 3/14/00, to two granule 3/29/00
-	float buf1[2192 + 1152];    // changed 8/13/98
+	float buf1[2192 + 1152];	// changed 8/13/98
 	float buf2[2192 + 1152];
-	float sample[2][4][576];    // [ch][igrx]  extended igrx for lookahead
+	float sample[2][4][576];	// [ch][igrx]  extended igrx for lookahead
 // xr entire frame required for ms decision
-// otherwise only channels  required
-	float xr[2][2][576];        /* [gr][ch] */
-	int ix[2][576];     /* [ch] quantized samples */
-	unsigned char signx[2][576];        /* [ch] */
+// otherwise only channels	required
+	float xr[2][2][576];		/* [gr][ch] */
+	int ix[2][576];		/* [ch] quantized samples */
+	unsigned char signx[2][576];		/* [ch] */
 // transform pointers
-	float *audio_buf[2][2];     /* [ch][gr] */
+	float *audio_buf[2][2];		/* [ch][gr] */
 
-	int xr_clear_flag[2][2];    // indicates xr need to be cleared
+	int xr_clear_flag[2][2];	// indicates xr need to be cleared
 //--------------------------
 // sig_mask sized for use by short also, short needs
 // sig_mask[2][3][12], 2 chan, 3 window, 12 sfbs
 // long needs sig_mask[2][21]
 // so sized sig_mask[2][36]
-	SIG_MASK sig_mask[2][36];   // mask + sig by channel
+	SIG_MASK sig_mask[2][36];	// mask + sig by channel
 
 	int byte_pool, byte_min, byte_max;
-	int vbr_pool_target;        // 4/27/99
+	int vbr_pool_target;		// 4/27/99
 	int igr, igr_prev;
 
-	int igrx;   // extended igr for sample transform 0/1/2/3
+	int igrx;	// extended igr for sample transform 0/1/2/3
 
 // attack detector
-	int attack_buf[2][32];      // energy history two channels
+	int attack_buf[2][32];		// energy history two channels
 
 //--------------------------
 	SCALEFACT sf[2][2]; /* [gr][ch] */
 	SIDE_INFO side_info;
 //------- bistream stuff
 	unsigned char mode_ext_buf[32];
-	unsigned char br_index_buf[32];     // for vbr
+	unsigned char br_index_buf[32];		// for vbr
 	struct
 	{
 		unsigned int main_pos;
-		signed int mf_bytes;    /* byte of main data in frame, includes pad */
+		signed int mf_bytes;	/* byte of main data in frame, includes pad */
 	}
 	frame_info[32];
-	unsigned char side_buf[32][32];     /* 32 frames max 32 char each */
+	unsigned char side_buf[32][32];		/* 32 frames max 32 char each */
 #define MB_TRIGGER (16*1024)
 	unsigned char main_buf[MB_TRIGGER + 512 + 1440 + 256];
 	unsigned int side_p0, side_p1;
 	int main_p0, main_p1;
 
 /* byte counters (unsigned, may wrap) */
-	unsigned int main_tot;      /* total main data bytes encoded */
-	unsigned int main_sent;     /* total main data bytes output */
-	unsigned int mf_tot;        /* total main data frame bytes */
-	signed int main_bytes;      /* current bytes in main data buf */
+	unsigned int main_tot;		/* total main data bytes encoded */
+	unsigned int main_sent;		/* total main data bytes output */
+	unsigned int mf_tot;		/* total main data frame bytes */
+	signed int main_bytes;		/* current bytes in main data buf */
 
 // encode selector
 	int iL3_audio_encode_function;
@@ -316,51 +316,51 @@ class CMp3Enc
 	void gen_vbr_table ( int h_mode, int samplerate, int max_tot_bitrate );
 
 /*-------------- encode function ----------------*/
-	IN_OUT L3_audio_encode_MPEG1 ( short *pcm, unsigned char *bs_out );
-	IN_OUT L3_audio_encode_vbr_MPEG1 ( short *pcm, unsigned char *bs_out );
-	IN_OUT L3_audio_encode_MPEG2 ( short *pcm, unsigned char *bs_out );
-	IN_OUT L3_audio_encode_vbr_MPEG2 ( short *pcm, unsigned char *bs_out );
+	IN_OUT L3_audio_encode_MPEG1 ( float *pcm, unsigned char *bs_out );
+	IN_OUT L3_audio_encode_vbr_MPEG1 ( float *pcm, unsigned char *bs_out );
+	IN_OUT L3_audio_encode_MPEG2 ( float *pcm, unsigned char *bs_out );
+	IN_OUT L3_audio_encode_vbr_MPEG2 (float *pcm, unsigned char *bs_out );
 
-	IN_OUT L3_audio_encode_MPEG1Packet ( short *pcm,
-										 unsigned char *bs_out,
-										 unsigned char *packet,
-										 int nbytes_out[2] );
-	IN_OUT L3_audio_encode_vbr_MPEG1Packet ( short *pcm,
-											 unsigned char *bs_out,
-											 unsigned char *packet,
-											 int nbytes_out[2] );
-	IN_OUT L3_audio_encode_MPEG2Packet ( short *pcm,
-										 unsigned char *bs_out,
-										 unsigned char *packet,
-										 int nbytes_out[2] );
-	IN_OUT L3_audio_encode_vbr_MPEG2Packet ( short *pcm,
-											 unsigned char *bs_out,
-											 unsigned char *packet,
-											 int nbytes_out[2] );
+	IN_OUT L3_audio_encode_MPEG1Packet (float *pcm,
+										unsigned char *bs_out,
+										unsigned char *packet,
+										int nbytes_out[2] );
+	IN_OUT L3_audio_encode_vbr_MPEG1Packet (float *pcm,
+											unsigned char *bs_out,
+											unsigned char *packet,
+											int nbytes_out[2] );
+	IN_OUT L3_audio_encode_MPEG2Packet (float *pcm,
+										unsigned char *bs_out,
+										unsigned char *packet,
+										int nbytes_out[2] );
+	IN_OUT L3_audio_encode_vbr_MPEG2Packet (float *pcm,
+											unsigned char *bs_out,
+											unsigned char *packet,
+											int nbytes_out[2] );
 
 /*-------------- base encode functions ----------------*/
-	int encode_function (  );   // master
-	int encode_jointA (  );
-	int encode_jointB (  );
+	int encode_function (  );	// master
+	int encode_jointA (	 );
+	int encode_jointB (	 );
 	int encode_singleA (  );
-	int encode_singleB (  );    // cannot handle dual 10/14/98
+	int encode_singleB (  );	// cannot handle dual 10/14/98
 	int encode_jointA_MPEG2 (  );
 	int encode_jointB_MPEG2 (  );
-	int encode_singleA_MPEG2 (  );
-	int encode_singleB_MPEG2 (  );
+	int encode_singleA_MPEG2 (	);
+	int encode_singleB_MPEG2 (	);
 
 // block type selection
-	void blocktype_selectB_igr_dual ( int igr );        // uses sbt data
-	void blocktype_selectB_igr_dual_MPEG2 ( int igr );  // uses sbt data
-	void blocktype_selectB_igr_single ( int igr );      // uses sbt data
-	void blocktype_selectB_igr_single_MPEG2 ( int igr );        // uses sbt data
+	void blocktype_selectB_igr_dual ( int igr );		// uses sbt data
+	void blocktype_selectB_igr_dual_MPEG2 ( int igr );	// uses sbt data
+	void blocktype_selectB_igr_single ( int igr );		// uses sbt data
+	void blocktype_selectB_igr_single_MPEG2 ( int igr );		// uses sbt data
 
 	void acoustic_model ( int igr, int block_type = 0, int block_type_prev =
 						  0 );
 //void L3acoustic(float *pcm, int ch, int igr,
-//                int block_type, int block_type_prev);
+//				  int block_type, int block_type_prev);
 //void xL3acoustic(float *pcm, int ch, int igr,
-//                 int block_type, int block_type_prev);   // Pentium III simd
+//				   int block_type, int block_type_prev);   // Pentium III simd
 	void L3acousticQuick ( int ch, int igr,
 						   int block_type, int block_type_prev );
 
@@ -376,7 +376,7 @@ class CMp3Enc
 //------------------- MP3_audio_encode (includes rate conversion)
 	int src_encode;
 	Csrc *src;
-	short *src_pcmbuf;
+	float *src_pcmbuf;
 
 };
 

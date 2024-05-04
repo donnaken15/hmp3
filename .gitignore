@@ -1,2 +1,8 @@
 builds/
 .vscode/
+Release/
+Debug/
+\!/
+*.db
+*.opendb
+.vs/

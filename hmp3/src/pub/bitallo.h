@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****
- * Source last modified: $Id: bitallo.h,v 1.1 2005/07/13 17:22:24 rggammon Exp $
+ * Source last modified: 2024-03-14, Case
  *
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.
  *
@@ -71,18 +71,18 @@ BA_CONTROL;
 class CBitAllo
 {
 
-  public:
+public:
 	CBitAllo (  );
 
-	~CBitAllo (  );
+	virtual ~CBitAllo (  ) = default;
 
 	virtual void BitAllo ( float xr_arg[][576], SIG_MASK sm_arg[][36],
-						   int ch_arg, int nchan_arg,
-						   int min_bits_arg, int target_bits_arg,
-						   int max_bits_arg, int bit_pool_arg,
-						   SCALEFACT sf_out[], GR gr_data[],
-						   int ix_arg[][576], unsigned char signx_arg[][576],
-						   int ms_flag_arg ) = 0;
+						    int ch_arg, int nchan_arg,
+						    int min_bits_arg, int target_bits_arg,
+						    int max_bits_arg, int bit_pool_arg,
+						    SCALEFACT sf_out[], GR gr_data[],
+						    int ix_arg[][576], unsigned char signx_arg[][576],
+						    int ms_flag_arg ) = 0;
 
 	virtual int BitAlloInit ( BA_CONTROL & ba_control ) = 0;
 
@@ -93,7 +93,7 @@ class CBitAllo
 	virtual void ba_out_stats (  ) = 0; // test routine
 
 //-data------------------------------------------------
-  protected:
+protected:
 
 	int nsf[2];
 	int nBand_l[22];

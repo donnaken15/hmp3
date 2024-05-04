@@ -1,4 +1,4 @@
-# Copyright 2022, Maik Merten
+# Copyright 2024, Maik Merten
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 #
@@ -24,13 +24,24 @@ ALIB=libhmp3.a
 SRC_PREFIX=./hmp3/src
 
 CC=gcc
-AR=ar
-CFLAGS_REL=-Os -Ofast -c -I$(SRC_PREFIX)/pub -DIEEE_FLOAT
-CFLAGS_DEB=-g -O0 -DDEBUG -c -I$(SRC_PREFIX)/pub -DIEEE_FLOAT
-CFLAGS_PRF=$(CFLAGS_REL) -g -pg
-LFLAGS=-lm -lmsvcrt -lstdc++ -s -ffreestanding -fno-rtti -fno-exceptions -Wl,--gc-sections -static
+CC_WIN32=i686-w64-mingw32-gcc
+CC_WIN64=x86_64-w64-mingw32-gcc
+
+CFLAGS_COMMON=-O8 -Os -Oz -Ofast -c -I$(SRC_PREFIX)/pub -DIEEE_FLOAT -D_FILE_OFFSET_BITS=64
+CFLAGS_REL=$(CFLAGS_COMMON)
+CFLAGS_REL_WIN32=-march=pentium3 -mtune=pentium3 -mfpmath=sse $(CFLAGS_COMMON)
+CFLAGS_REL_WIN64=-march=x86-64 $(CFLAGS_COMMON)
+
+CFLAGS_DEB=-c -I$(SRC_PREFIX)/pub -DIEEE_FLOAT -D_FILE_OFFSET_BITS=64
+CFLAGS_PRF=$(CFLAGS_REL)
+OFLAGS=-s -ffreestanding -fno-rtti -fno-exceptions -fomit-frame-pointer -msse2 -Wl,--gc-sections -pipe
+# GH3 has xmm operations, so tack on SSE if not even enabled by default, don't know if game code specifically tailors to SSE/SSE2 or SSE3
+LFLAGS=-lm -lstdc++ -static $(OFLAGS)
+LFLAGS_MINGW=-lmsvcrt -lstdc++ -static $(OFLAGS)
 SFLAGS=-s -g -S -d --strip-dwo --strip-unneeded -M -p
 UFLAGS=-9 --ultra-brute -v
+
+AR=ar
 
 # source files for encoder library within SRC_PREFIX
 SRC_LIB_C=amodini2.c cnts.c detect.c emap.c l3init.c l3pack.c mhead.c pcmhpm.c setup.c spdsmr.c xhead.c cnt.c emdct.c filter2.c hwin.c l3math.c pow34.c sbt.c xhwin.c xsbt.c
@@ -55,8 +66,19 @@ FASTGH3_HELIX=helix.exe
 
 .PHONY: clean prep
 all: prep $(DIR_REL)/$(EXE_REL)
-#debug: prep $(DIR_DEB)/$(EXE_DEB)
-#profile: prep $(DIR_PRF)/$(EXE_PRF)
+debug: prep $(DIR_DEB)/$(EXE_DEB)
+profile: prep $(DIR_PRF)/$(EXE_PRF)
+
+release-win32: CC=$(CC_WIN32)
+release-win32: CFLAGS_REL=$(CFLAGS_REL_WIN32)
+release-win32: LFLAGS=$(LFLAGS_MINGW)
+release-win32: clean all
+
+release-win64: CC=$(CC_WIN64)
+release-win64: CFLAGS_REL=$(CFLAGS_REL_WIN64)
+release-win64: LFLAGS=$(LFLAGS_MINGW)
+release-win64: clean all
+
 
 # Release
 

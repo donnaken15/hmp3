@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****
- * Source last modified: 2022-12-19, Maik Merten
+ * Source last modified: 2024-04-10, Case
  *
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.
  *
@@ -37,6 +37,8 @@
 
 #ifndef _XHEAD_H_
 #define _XHEAD_H_
+
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -77,7 +79,7 @@ unsigned short XingHeaderUpdateCRC ( unsigned short crc, unsigned char *data, in
 //      updated, reflected CRC
 
 
-int XingHeaderBitrateIndex ( int h_mode, int bitrate) ;
+// int XingHeaderBitrateIndex ( int h_mode, int bitrate) ;
 // helper function to convert a bitrate to a bitrate-index as
 // needed by XingHeader
 // input:
@@ -87,11 +89,11 @@ int XingHeaderBitrateIndex ( int h_mode, int bitrate) ;
 //      a bitrate index
 
 
-int XingHeader ( int samprate, int h_mode, int cr_bit, int original,
-				 int flags, int frames, int bs_bytes,
-				 int vbr_scale,
-				 unsigned char *toc, unsigned char *buf, unsigned char *buf20,
-				 unsigned char *buf20B, int nBitRateIndex );
+int XingHeader (int samprate, int h_mode, int cr_bit, int original,
+				int flags, int frames, int bs_bytes,
+				int vbr_scale,
+				unsigned char *toc, unsigned char *buf, unsigned char *buf20,
+				unsigned char *buf20B, int nBitRate );
 // creates an mp3 frame that contains a Xing header
 // return  0 = fail or frame_bytes
 // input:
@@ -114,10 +116,10 @@ int XingHeader ( int samprate, int h_mode, int cr_bit, int original,
 // output
 //      buf         buffer to place the mp3 frame
 
-int XingHeaderUpdate ( int frames, int bs_bytes,
-					   int vbr_scale,
-					   unsigned char *toc, unsigned char *buf,
-					   unsigned char *buf20, unsigned char *buf20B );
+int XingHeaderUpdate (  int frames, int bs_bytes,
+					    int vbr_scale,
+					    unsigned char *toc, unsigned char *buf,
+					    unsigned char *buf20, unsigned char *buf20B );
 // update the information in a previously created mp3 frame
 // that contains a Xing header
 // return  0 = fail,  1 = success
@@ -131,13 +133,13 @@ int XingHeaderUpdate ( int frames, int bs_bytes,
 // input/output
 //      buf         buffer containing mp3 frame to update
 
-int XingHeaderUpdateInfo ( int frames, int bs_bytes,
-					   int vbr_scale,
-					   unsigned char *toc, unsigned char *buf,
-					   unsigned char *buf20, unsigned char *buf20B,
-					   unsigned long samples_audio,
-					   unsigned int bytes_mp3, unsigned int lowpass,
-					   unsigned int in_samplerate, unsigned short musiccrc);
+int XingHeaderUpdateInfo ( unsigned int frames, int bs_bytes,
+						int vbr_scale,
+						unsigned char *toc, unsigned char *buf,
+						unsigned char *buf20, unsigned char *buf20B,
+						uint64_t samples_audio,
+						unsigned int bytes_mp3, unsigned int lowpass,
+						unsigned int in_samplerate, unsigned int out_samplerate, unsigned short musiccrc);
 // Update the information in a previously created mp3 frame
 // that contains a Xing header.
 // This version supports the LAME info header.
