@@ -1016,11 +1016,9 @@ ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL *ec0 )
 	delete[] pcm_buffer;
 	if(handle != NULL)
 		fclose ( handle );
-	else
-		no_action_msg();
 	if(handout != NULL)
 		fclose ( handout );
-	else
+	if (handout == NULL || handout == NULL)
 		no_action_msg();
 	while ( kbhit (	 ) )
 		getch (	 );		/* purge key board buffer */
