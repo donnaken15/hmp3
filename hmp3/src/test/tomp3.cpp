@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****
- * Source last modified: 2024-04-14, Maik Merten
+ * Source last modified: 2024-05-31, Maik Merten
  *
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.
  *
@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-const char versionstring[24] = "5.2.3, 2024-04-14";
+const char versionstring[24] = "5.2.4, 2024-05-31";
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -53,6 +53,7 @@ const char versionstring[24] = "5.2.3, 2024-04-14";
 #include <string.h>
 #include <stdint.h>
 #include <inttypes.h>
+#include <signal.h>
 
 #include "port.h"
 #include "xhead.h"		/* Xing header */
@@ -84,6 +85,46 @@ const char versionstring[24] = "5.2.3, 2024-04-14";
 #define fn_fseek	_fseeki64
 #define fn_ftell	_ftelli64
 #define fn_strcmp	wcscmp
+
+static HANDLE get_console_handle()
+{
+	HANDLE hOut = GetStdHandle(STD_ERROR_HANDLE);
+	if (!hOut || hOut == INVALID_HANDLE_VALUE || GetFileType(hOut) != FILE_TYPE_CHAR) hOut = NULL;
+	return hOut;
+}
+
+int con_printf(FILE *stream, const char *format, ...)
+{
+	int ret;
+	va_list argptr;
+	static HANDLE hConsoleOut = get_console_handle();
+
+	va_start(argptr, format);
+
+	if (hConsoleOut) { /* output to console */
+		char buf[1024];
+
+		ret = _vsnprintf(buf, sizeof(buf), format, argptr);
+
+		if (ret > 0) {
+			buf[sizeof(buf) - 1] = '\0'; /* ensure string is null-terminated */
+			DWORD out;
+			size_t len = strlen(buf);
+			if (len >= sizeof(buf)) len = sizeof(buf) - 1;
+			if (WriteConsoleA(hConsoleOut, buf, (DWORD)len, &out, NULL) != 0) {
+				ret = (int)out;
+			} else {
+				ret = -1;
+			}
+		}
+	} else {
+		ret = vfprintf(stream, format, argptr);
+	}
+
+	va_end(argptr);
+
+	return ret;
+}
 
 static int wprint_console(FILE *stream, const wchar_t *text, size_t len)
 {
@@ -165,6 +206,7 @@ int fn_fprintf(FILE *stream, const fn_char *format, ...)
 #define fn_ftell	ftello
 #define fn_fprintf	fprintf
 #define fn_strcmp	strcmp
+#define con_printf	fprintf
 
 #endif /* #ifdef _WIN32 - platform specific code + unicode handling */
 
@@ -179,6 +221,8 @@ static int XingHeadFlag = 0;
 static int display_flag = 1;
 static int ignore_length = 0;
 static int ec_display_flag = 0;
+
+static volatile int stop_encoder = 0;
 
 /*---- timing test Pentium only ---*/
 #ifdef TIME_TEST
@@ -262,6 +306,14 @@ int get_wchar_commandline( wchar_t ***wargv )
 #endif
 
 /*===============================================*/
+// Handler for SIGINT (usually CTRL+c)
+void handler_sigint(int sig)
+{
+	stop_encoder = 1;
+}
+
+
+/*===============================================*/
 int
 main ( int argc, char *argv_real[] )
 {
@@ -287,6 +339,8 @@ main ( int argc, char *argv_real[] )
 		" Utilizing the Helix MP3 encoder, Copyright 1995-2005 RealNetworks, Inc.\n", versionstring );
 	filename = default_file;
 	fileout = default_outfile;
+
+	signal(SIGINT, handler_sigint);
 
 	ec.mode = 1;
 	ec.bitrate = -1;	/* let encoder choose */
@@ -499,7 +553,7 @@ main ( int argc, char *argv_real[] )
 	else
 		ec.vbr_flag = 0;
 
-	//fprintf (stderr, "\n\n  <press any key to stop encoder>" );
+	fprintf (stderr, "\n  <press CTRL+c to stop encoder> \n" );
 
 /******** encode *********/
 #ifdef ETIME_TEST
@@ -562,7 +616,7 @@ print_progress(CMp3Enc *Encode, uint64_t in_bytes, unsigned int out_bytes, int p
 	}
 
 	if ( progress >= 0 ) sprintf ( progress_str, "%3d%%", progress );
-	fprintf (stderr, "\r  %10u  | %s / %10u |   %s   | %6.2f / %6.2f Kbps",
+	con_printf (stderr, "\r  %10u  | %s / %10u |   %s   | %6.2f / %6.2f Kbps",
 		Encode->L3_audio_encode_get_frames() + 1, bytesin_str, out_bytes, progress_str,
 		Encode->L3_audio_encode_get_bitrate2_float (  ),
 		Encode->L3_audio_encode_get_bitrate_float (  ) );
@@ -918,16 +972,15 @@ ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL *ec0 )
 		}
 
 		/*
-		 * bail out if user hits key
+		 * bail out if SIGINT-handler signaled stop
 		 */
-
-		if ( kbhit (  ) )
+		if ( stop_encoder )
 			break;
 
 		/*
 		 * progress indicator
 		 */
-		if ( ( u & 127 ) == display_flag )
+		if ( ( u & 511 ) == display_flag )
 		{
 			print_progress ( &Encode, in_bytes, out_bytes, (!ignore_length ? (int)(in_bytes * 100. / indatasize) : -1) );
 		}
@@ -954,7 +1007,7 @@ ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL *ec0 )
 	// write zero samples into the pcm buffer
 	memset(pcm_buffer,0,bytes_in_init*4);
 
-	if(fi.rate < 32000) // adjust for MPEG2
+	if(ec.samprate < 32000) // adjust for MPEG2
 		frames_expected *= 2;
 
 	while(Encode.L3_audio_encode_get_frames() < frames_expected) {
@@ -971,7 +1024,7 @@ ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL *ec0 )
 	}
 
 	/* fprintf (stderr, "\r  %10u  | %10d / %10d |   %3d%%   | %6.2f / %6.2f  Kbps", */
-	print_progress ( &Encode, in_bytes, out_bytes, ( !kbhit() ? 100 : (int)(in_bytes*100. / indatasize) ) );
+	print_progress ( &Encode, in_bytes, out_bytes, ( !stop_encoder ? 100 : (int)(in_bytes*100. / indatasize) ) );
 
 	fprintf (stderr, "\n-------------------------------------------------------------------------------");
 	/* fprintf (stderr, "\n Compress Ratio %3.6f%%", out_bytes*100./indatasize ); */
@@ -995,6 +1048,7 @@ ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL *ec0 )
 		{
 			uint64_t samples_audio = audio_bytes / (fi.channels * (fi.bits / 8));
 			frames = Encode.L3_audio_encode_get_frames (  );
+			if ( stop_encoder ) samples_audio = 0;
 			XingHeaderUpdateInfo ( frames, out_bytes, vbr_scale, NULL, bs_buffer, 0, 0, samples_audio, out_bytes, ec.freq_limit, fi.rate, ec.samprate, head_musiccrc );
 			fseek ( handout, 0, SEEK_SET );
 			fwrite ( bs_buffer, 1, head_bytes, handout );
@@ -1020,8 +1074,6 @@ ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL *ec0 )
 		fclose ( handout );
 	if (handout == NULL || handout == NULL)
 		no_action_msg();
-	while ( kbhit (	 ) )
-		getch (	 );		/* purge key board buffer */
 	return Encode.L3_audio_encode_get_frames() + 1;
 }
 
@@ -1078,15 +1130,12 @@ out_usage (  )
 {
 	no_action_msg();
 	fprintf (stderr,
-	//"\nlayer"
-	//"\n        layer = 1 for Layer I, = 2 for Layer II, default = Layer III"
 	"\nB[bitrate]Per channel bitrate in kbits per second."
 	"\n          Encoder will choose if -1. (default)"
 	"\nM[mode]   Select encoding mode: mode-0 stereo=0 mode-1 stereo=1 dual=2 mono=3."
 	"\nV[vbr_scale]"
 	"\n          Selects vbr encoding and vbr scale.  Valid values are 0-150."
-	//"\nhf        Enables high frequency encoding (mode-1 stereo only)"
-	//"\nhf2       Enables high frequency encoding (all modes)"
+	"\nL         vbr per channel bitrate limit in kbits per second."
 	"\nN[nsbstereo]"
 	"\n          Applies to mode-1 stereo mode only.  Number of subbands to"
 	"\n          encode in independent stereo.	Valid values are 4, 8, 12, and 16."
@@ -1107,17 +1156,14 @@ out_usage (  )
 	"\nF         Limits encoded subbands to specified frequency, f24000"
 	"\nHF        high frequency encoding. Allows coding above 16000Hz."
 	"\n          hf1=(mode-1 granules), hf2=(all granules), -B96 or -V80 needed"
-	"\nTX        tx6, test reserved 6 or 8 seems best (startup_adjustNT1B)"
-	"\n            ** v5.0  TEST 1  as of 8/15/00"
-	"\n            ** v5.0  TEST 2  8/18/00"
-	"\n            ** v5.0  TEST 3  default tx6 (prev = tx8)"
-	"\n            ** v5.0  TEST 4  mods to short fnc_sf, ms corr. hf enable > 80"
-	"\n            ** v5.0  TEST 5  fix odd npart, ix clear"
-	"\n            ** v5.0  TEST 6  add reformatted frames"
-	"\n            ** v5.0  TEST 7  drop V4 amod"
-	"\n            ** v5.1  2005.08.09 (see CVS log for details)"
+	"\nT         Bias for VBR quality scale, default 0. Valid values are -40-50."
+	"\n          Can be used to reach higher or lower VBR bitrates than with the"
+	"\n          base VBR scale -V"
+	"\nTX        Band noise target adjustments (startup_adjustNT1B), default 6"
+	"\n          6 or 8 presumed best"
 	"\nSBT[short_block_threshold]"
-	"\n          short_block_threshold default = 700"
+	"\n          short_block_threshold, default = 700"
+	"\n          Lower values mean increased sensitivity to transients."
 	"\nEC        Display Encoder Setting\n" );
 
 	return 0;

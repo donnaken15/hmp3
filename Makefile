@@ -27,12 +27,12 @@ CC=gcc
 CC_WIN32=i686-w64-mingw32-gcc
 CC_WIN64=x86_64-w64-mingw32-gcc
 
-CFLAGS_COMMON=-O8 -Os -Oz -Ofast -c -I$(SRC_PREFIX)/pub -DIEEE_FLOAT -D_FILE_OFFSET_BITS=64
+CFLAGS_COMMON=-O8 -Os -Oz -Ofast -flto=auto -c -I$(SRC_PREFIX)/pub -DIEEE_FLOAT -D_FILE_OFFSET_BITS=64
 CFLAGS_REL=$(CFLAGS_COMMON)
 CFLAGS_REL_WIN32=-march=pentium3 -mtune=pentium3 -mfpmath=sse $(CFLAGS_COMMON)
 CFLAGS_REL_WIN64=-march=x86-64 $(CFLAGS_COMMON)
 
-CFLAGS_DEB=-c -I$(SRC_PREFIX)/pub -DIEEE_FLOAT -D_FILE_OFFSET_BITS=64
+CFLAGS_DEB=-flto=auto -c -I$(SRC_PREFIX)/pub -DIEEE_FLOAT -D_FILE_OFFSET_BITS=64
 CFLAGS_PRF=$(CFLAGS_REL)
 OFLAGS=-s -ffreestanding -fno-rtti -fno-exceptions -fomit-frame-pointer -msse2 -Wl,--gc-sections -pipe
 # GH3 has xmm operations, so tack on SSE if not even enabled by default, don't know if game code specifically tailors to SSE/SSE2 or SSE3
@@ -45,7 +45,7 @@ AR=ar
 
 # source files for encoder library within SRC_PREFIX
 SRC_LIB_C=amodini2.c cnts.c detect.c emap.c l3init.c l3pack.c mhead.c pcmhpm.c setup.c spdsmr.c xhead.c cnt.c emdct.c filter2.c hwin.c l3math.c pow34.c sbt.c xhwin.c xsbt.c
-SRC_LIB_CPP=bitallo.cpp bitallo1.cpp bitallo3.cpp bitalloc.cpp bitallos.cpp bitallosc.cpp mp3enc.cpp srcc.cpp srccf.cpp srccfb.cpp
+SRC_LIB_CPP=bitallo.cpp bitallo1.cpp bitallo3.cpp bitalloc.cpp bitallos.cpp bitallosc.cpp mp3enc.cpp srcc.cpp srccf.cpp
 
 # source files for encoder application
 SRC_APP=test/tomp3.cpp

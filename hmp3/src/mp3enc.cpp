@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****
- * Source last modified: 2024-04-10, Case
+ * Source last modified: 2024-05-25, Maik Merten
  *
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.
  *
@@ -637,24 +637,24 @@ CMp3Enc::L3_audio_encode_init ( E_CONTROL * ec_arg )
 		ec.vbr_flag = 0;
 
 //-------- vbr
-	if ( h.id == 1 )
-	{   // MPEG1
-		if ( ec.vbr_flag )
-		{
-			gen_vbr_table ( h.mode, divisor, 2 * ec.vbr_br_limit );
-			// AveTargetBits reset by gen_vbr_table
-			iL3_audio_encode_function = iL3_audio_encode_vbr_MPEG1;
-		}
-	}
-	else
-	{   // mpeg 2
-		if ( ec.vbr_flag )
-		{
-			gen_vbr_table ( h.mode, divisor, 2 * ec.vbr_br_limit );
-			// AveTargetBits reset by gen_vbr_table
-			iL3_audio_encode_function = iL3_audio_encode_vbr_MPEG2;
-		}
-	}
+    if ( h.id == 1 )
+    {   // MPEG1
+        if ( ec.vbr_flag )
+        {
+            gen_vbr_table ( h.mode, divisor, (ec.mode == 3 ? 1 : 2) * ec.vbr_br_limit );
+            // AveTargetBits reset by gen_vbr_table
+            iL3_audio_encode_function = iL3_audio_encode_vbr_MPEG1;
+        }
+    }
+    else
+    {   // mpeg 2
+        if ( ec.vbr_flag )
+        {
+            gen_vbr_table ( h.mode, divisor, (ec.mode == 3 ? 1 : 2) * ec.vbr_br_limit );
+            // AveTargetBits reset by gen_vbr_table
+            iL3_audio_encode_function = iL3_audio_encode_vbr_MPEG2;
+        }
+    }
 
 	if ( ec.vbr_flag )
 	{
@@ -985,12 +985,12 @@ CMp3Enc::gen_vbr_table ( int h_mode, int samplerate, int max_tot_bitrate )
 		vbr_framebytes[15] = 9999999;
 		vbr_main_framebytes[15] = 9999999;
 
-		vbr_pool_target = 256;  // use more pool with restricted br
-		for ( i = 14; i >= 12; i-- )
-		{
-			if ( max_tot_bitrate >= vbr_br_table[i] )
-				break;
-			vbr_pool_target = ( vbr_pool_target + 511 ) >> 1;   // use more pool with restricted br
+        vbr_pool_target = 256;  // use more pool with restricted br
+        for ( i = 14; i >= 2; i-- )
+        {
+            if ( max_tot_bitrate >= vbr_br_table[i] )
+                break;
+            vbr_pool_target = ( vbr_pool_target + 511 ) >> 1;   // use more pool with restricted br
 
 		}
 		ivbr_max = i;
@@ -1021,15 +1021,15 @@ CMp3Enc::gen_vbr_table ( int h_mode, int samplerate, int max_tot_bitrate )
 		vbr_framebytes[15] = 9999999;
 		vbr_main_framebytes[15] = 9999999;
 
-		vbr_pool_target = 128;  // use more pool with restricted br
-		for ( i = 14; i >= 12; i-- )
-		{
-			if ( max_tot_bitrate >= vbr_br_tableMPEG2[i] )
-				break;
-			vbr_pool_target = ( vbr_pool_target + 255 ) >> 1;   // use more pool with restricted br
-		}
-		ivbr_max = i;
-		ivbr_min = 1;   // min and max vbr bitrate_index
+        vbr_pool_target = 128;  // use more pool with restricted br
+        for ( i = 14; i >= 2; i-- )
+        {
+            if ( max_tot_bitrate >= vbr_br_tableMPEG2[i] )
+                break;
+            vbr_pool_target = ( vbr_pool_target + 255 ) >> 1;   // use more pool with restricted br
+        }
+        ivbr_max = i;
+        ivbr_min = 1;   // min and max vbr bitrate_index
 
 		//AveTargetBits is a per channel per granule number
 		// used by bitallo2 for bit pool control in vbr mode

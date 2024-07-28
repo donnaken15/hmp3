@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****
- * Source last modified: 2024-03-16, Case
+ * Source last modified: 2024-05-20, Maik Merten
  *
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.
  *
@@ -86,11 +86,8 @@ class Csrc
 {
 
   public:
-	Csrc (  );
-
-	~Csrc (  )
-	{
-	}
+    Csrc();
+    ~Csrc();
 
 	int sr_convert_init (   int source, int channels, int bits, int is_float,
 							int target, int target_channels,
@@ -101,10 +98,10 @@ class Csrc
   private:
 	SRC_STRUCT src;
 
-	unsigned int src_bytes_out;
-	int src_filter;
-	int m_channels, m_bits, m_is_float;
-	float itof_buf[1152 * 2];
+    unsigned int src_bytes_out;
+    int src_filter;
+    int m_channels, m_bits, m_is_float, m_frames_to_convert;
+    float *itof_buf;
 
 //-functions------------------------------------------------
 	int gen_src_filter ( int source0, int target );
@@ -128,32 +125,9 @@ class Csrc
 	int src_filter_to_mono_case3 ( float x[][2], float y[] );
 	int src_filter_to_mono_case4 ( float x[][2], float y[] );
 
-// 8 bit input
-	int src_bfilter_mono_case0 ( unsigned char x[], float y[] );
-	int src_bfilter_mono_case1 ( unsigned char x[], float y[] );
-	int src_bfilter_mono_case2 ( unsigned char x[], float y[] );
-	int src_bfilter_mono_case3 ( unsigned char x[], float y[] );
-	int src_bfilter_mono_case4 ( unsigned char x[], float y[] );
-
-	int src_bfilter_dual_case0 ( unsigned char x[][2], float y[][2] );
-	int src_bfilter_dual_case1 ( unsigned char x[][2], float y[][2] );
-	int src_bfilter_dual_case2 ( unsigned char x[][2], float y[][2] );
-	int src_bfilter_dual_case3 ( unsigned char x[][2], float y[][2] );
-	int src_bfilter_dual_case4 ( unsigned char x[][2], float y[][2] );
-
-	int src_bfilter_to_mono_case0 ( unsigned char x[][2], float y[] );
-	int src_bfilter_to_mono_case1 ( unsigned char x[][2], float y[] );
-	int src_bfilter_to_mono_case2 ( unsigned char x[][2], float y[] );
-	int src_bfilter_to_mono_case3 ( unsigned char x[][2], float y[] );
-	int src_bfilter_to_mono_case4 ( unsigned char x[][2], float y[] );
-
-	int stage1_mono ( float x[] );
-	int stage1_dual ( float x[][2] );
-	int stage1_to_mono ( float x[][2] );
-
-	int stage1b_mono ( unsigned char x[] );
-	int stage1b_dual ( unsigned char x[][2] );
-	int stage1b_to_mono ( unsigned char x[][2] );
+    int stage1_mono ( float x[] );
+    int stage1_dual ( float x[][2] );
+    int stage1_to_mono ( float x[][2] );
 
 };
 

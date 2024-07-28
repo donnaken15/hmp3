@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****
- * Source last modified: 2024-03-16, Case
+ * Source last modified: 2024-05-20, Maik Merten
  *
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.
  *
@@ -63,8 +63,13 @@
 
 /*==================================================================*/
 Csrc::Csrc (  ):
-src_bytes_out ( 0 ), src_filter ( 0 )
+src_bytes_out ( 0 ), src_filter ( 0 ), itof_buf ( NULL )
 {
+}
+
+Csrc::~Csrc()
+{
+    delete[] itof_buf;
 }
 
 /*==================================================================*/
@@ -760,9 +765,6 @@ Csrc::sr_convert_init ( int source, int channels, int bits, int is_float,
 	if ( ( channels == 2 ) && ( target_channels == 1 ) )
 		kfilter = 2;
 
-	byte_input = 0;
-	if ( bits == 8 )
-		byte_input = 1;
 
 	min_samps = gen_src_filter ( source, target );      // return 0 if can't handle
 	if ( min_samps <= 0 )
@@ -773,14 +775,17 @@ Csrc::sr_convert_init ( int source, int channels, int bits, int is_float,
 	src_bytes_out = sizeof ( float) * target_channels * 1152;
 
 //src_filter = src_filter_table[byte_input][kfilter][src.ncase];
-	src_filter = ( 3 * 5 ) * byte_input + 5 * kfilter + src.ncase;
+    src_filter = 5 * kfilter + src.ncase;
 
 /* return cutoff frequency for encoder */
 	*encode_cutoff_freq = ( int ) ( 0.90f * HX_MIN ( target, source ) / 2 );
 
-	m_channels = channels;
-	m_bits = bits;
-	m_is_float = is_float;
+    m_channels = channels;
+    m_bits = bits;
+    m_is_float = is_float;
+    m_frames_to_convert = 1152;
+    if (source > target) m_frames_to_convert *= ((source / target) + 1);
+    itof_buf = new float[m_frames_to_convert * 2];
 
 	return min_inbuf_bytes;
 }
@@ -791,41 +796,44 @@ Csrc::sr_convert ( unsigned char xin[], float yout[] )
 {
 	IN_OUT x;
 
-	float *in_ptr = (float *)xin;
-	if (m_bits != 8) {
-		float *dst = (float *)itof_buf;
-		in_ptr = itof_buf;
+    float *in_ptr = (float *)xin;
 
-		if (m_bits == 32) {
-			if (m_is_float) {
-				float *src = (float *)xin;
-				for ( int i = 0; i < 1152 * m_channels; ++i ) {
-					*dst++ = (float)(*src++) * 32768.0f;
-				}
-			} else {
-				int *src = (int *)xin;
+    float *dst = (float *)itof_buf;
+    in_ptr = itof_buf;
 
-				for ( int i = 0; i < 1152 * m_channels; ++i ) {
-					*dst++ = (float)( (*src++) / 65536.0f );
-				}
-			}
-		} else if (m_bits == 24) {
-			unsigned char *src = (unsigned char *)xin;
-			for (int i = 0; i < 1152 * m_channels; ++i) {
-				int s = ( ( src[2] << 24 ) | ( src[1] << 16 ) | ( src[0] << 8 ) ) >> 8;
-				*dst++ = (float)( (float)s / 256.0f );
-				src += 3;
-			}
-		} else if (m_bits == 16) {
-			short *src = (short *)xin;
-			for ( int i = 0; i < 1152 * m_channels; ++i ) {
-				*dst++ = (float)*src++;
-			}
-		}
-	}
+    if (m_bits == 32) {
+        if (m_is_float) {
+            float *src = (float *)xin;
+            for ( int i = 0; i < m_frames_to_convert * m_channels; ++i ) {
+                *dst++ = (float)(*src++) * 32768.0f;
+            }
+        } else {
+            int *src = (int *)xin;
 
-	typedef float float_pair[2];
-	typedef unsigned char uchar_pair[2];
+            for ( int i = 0; i < m_frames_to_convert * m_channels; ++i ) {
+                *dst++ = (float)( (*src++) / 65536.0f );
+                }
+        }
+    } else if (m_bits == 24) {
+        unsigned char *src = (unsigned char *)xin;
+        for (int i = 0; i < m_frames_to_convert * m_channels; ++i) {
+            int s = ( ( src[2] << 24 ) | ( src[1] << 16 ) | ( src[0] << 8 ) ) >> 8;
+            *dst++ = (float)( (float)s / 256.0f );
+            src += 3;
+        }
+    } else if (m_bits == 16) {
+        short *src = (short *)xin;
+        for ( int i = 0; i < m_frames_to_convert * m_channels; ++i ) {
+            *dst++ = (float)*src++;
+        }
+    } else if (m_bits == 8) {
+        unsigned char *src = (unsigned char*)xin;
+        for ( int i = 0; i < m_frames_to_convert * m_channels; ++i ) {
+            *dst++ = (((float)*src++) - 128.0f) * (256.0f);
+        }
+    }
+
+    typedef float float_pair[2];
 
 //x.in_bytes  = src_filter(xin, yout);
 
@@ -871,90 +879,32 @@ Csrc::sr_convert ( unsigned char xin[], float yout[] )
 									( float_pair * ) yout );
 		break;
 //---
-	case 10:
-		x.in_bytes = src_filter_to_mono_case0 ( ( float_pair * ) in_ptr, yout );
-		break;
-	case 11:
-		x.in_bytes = src_filter_to_mono_case1 ( ( float_pair * ) in_ptr, yout );
-		break;
-	case 12:
-		x.in_bytes = src_filter_to_mono_case2 ( ( float_pair * ) in_ptr, yout );
-		break;
-	case 13:
-		x.in_bytes = src_filter_to_mono_case3 ( ( float_pair * ) in_ptr, yout );
-		break;
-	case 14:
-		x.in_bytes = src_filter_to_mono_case4 ( ( float_pair * ) in_ptr, yout );
-		break;
+    case 10:
+        x.in_bytes = src_filter_to_mono_case0 ( ( float_pair * ) in_ptr, yout );
+        break;
+    case 11:
+        x.in_bytes = src_filter_to_mono_case1 ( ( float_pair * ) in_ptr, yout );
+        break;
+    case 12:
+        x.in_bytes = src_filter_to_mono_case2 ( ( float_pair * ) in_ptr, yout );
+        break;
+    case 13:
+        x.in_bytes = src_filter_to_mono_case3 ( ( float_pair * ) in_ptr, yout );
+        break;
+    case 14:
+        x.in_bytes = src_filter_to_mono_case4 ( ( float_pair * ) in_ptr, yout );
+        break;
+    }
 
-// 8 bit input
-	case 15:
-		x.in_bytes = src_bfilter_mono_case0 ( ( unsigned char * ) xin, yout );
-		break;
-	case 16:
-		x.in_bytes = src_bfilter_mono_case1 ( ( unsigned char * ) xin, yout );
-		break;
-	case 17:
-		x.in_bytes = src_bfilter_mono_case2 ( ( unsigned char * ) xin, yout );
-		break;
-	case 18:
-		x.in_bytes = src_bfilter_mono_case3 ( ( unsigned char * ) xin, yout );
-		break;
-	case 19:
-		x.in_bytes = src_bfilter_mono_case4 ( ( unsigned char * ) xin, yout );
-		break;
-//---
-	case 20:
-		x.in_bytes =
-			src_bfilter_dual_case0 (( uchar_pair * ) xin,
-									( float_pair * ) yout );
-		break;
-	case 21:
-		x.in_bytes =
-			src_bfilter_dual_case1 (( uchar_pair * ) xin,
-									( float_pair * ) yout );
-		break;
-	case 22:
-		x.in_bytes =
-			src_bfilter_dual_case2 (( uchar_pair * ) xin,
-									( float_pair * ) yout );
-		break;
-	case 23:
-		x.in_bytes =
-			src_bfilter_dual_case3 (( uchar_pair * ) xin,
-									( float_pair * ) yout );
-		break;
-	case 24:
-		x.in_bytes =
-			src_bfilter_dual_case4 (( uchar_pair * ) xin,
-									( float_pair * ) yout );
-		break;
-//---
-	case 25:
-		x.in_bytes = src_bfilter_to_mono_case0 ( ( uchar_pair * ) xin, yout );
-		break;
-	case 26:
-		x.in_bytes = src_bfilter_to_mono_case1 ( ( uchar_pair * ) xin, yout );
-		break;
-	case 27:
-		x.in_bytes = src_bfilter_to_mono_case2 ( ( uchar_pair * ) xin, yout );
-		break;
-	case 28:
-		x.in_bytes = src_bfilter_to_mono_case3 ( ( uchar_pair * ) xin, yout );
-		break;
-	case 29:
-		x.in_bytes = src_bfilter_to_mono_case4 ( ( uchar_pair * ) xin, yout );
-		break;
-
-	}
-
-	if (m_bits == 16) {
-		x.in_bytes /= 2;
-	} else if (m_bits == 24) {
-		x.in_bytes = x.in_bytes * 3 / 4;
-	}
-	x.out_bytes = src_bytes_out;
-	return x;
+    if (m_bits == 8) {
+        x.in_bytes /= 4;
+    } if (m_bits == 16) {
+        x.in_bytes /= 2;
+    } else if (m_bits == 24) {
+        x.in_bytes = x.in_bytes * 3 / 4;
+    }
+    x.out_bytes = src_bytes_out;
+    return x;
 }
 
 /*--------------------------------------------------------------------*/

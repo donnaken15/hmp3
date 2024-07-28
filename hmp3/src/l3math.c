@@ -1,5 +1,5 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Source last modified: 2022-11-24, Maik Merten
+/* ***** BEGIN LICENSE BLOCK *****  
+ * Source last modified: 2024-05-13, Maik Merten
  *
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.
  *
@@ -522,19 +522,19 @@ ifnc_noise_actual ( const float x34[], const float x[], int gsf, int n, int log_
 	{
 //        qx = ( int ) ( igain * x34[i] + ( 0.5f - 0.0946f ) );
 //        qx = RoundFtoL ( igain * x34[i] + ( 0.0f - 0.0946f ) ) ;
-		tmp = ( igain * x34[i] + ( 0.0f - 0.0946f ) ) ;
-		qx = (int)(tmp + copysignf(0.5f, tmp));
-		if ( qx < 256 )
-		{
-			xhat = gain * look_ix43[qx];
-		}
-		else
-		{
-			xhat = ( float ) ( gain * pow ( qx, ( 4.0 / 3.0 ) ) );
-		}
-		tmp = x[i] - xhat;
-		sxx += tmp * tmp;
-	}
+        tmp = ( igain * x34[i] + ( 0.0f - 0.0946f ) ) ;
+        qx = (int)(tmp + copysignf(0.5f, tmp));
+        if ( qx >= 0 && qx < 256 )
+        {
+            xhat = gain * look_ix43[qx];
+        }
+        else
+        {
+            xhat = ( float ) ( gain * pow ( qx, ( 4.0 / 3.0 ) ) );
+        }
+        tmp = x[i] - xhat;
+        sxx += tmp * tmp;
+    }
 
 //    noise = ( int ) ( 1000.0 * log10 ( 1.0e-12f + sxx ) + 0.5 );
 //    noise = noise - log_of_n;
@@ -704,18 +704,20 @@ vect_quantB2 ( float x34[], int ix[], int gsf, int n, float qadjust )
 	save = quant_table[0];
 	quant_table[0] = qadjust;
 
-	igain = look_34igain[gsf];
-	ixmax = 0;
-	for ( i = 0; i < n; i++ )
-	{
-		t = igain * x34[i] + ( 0.5f - 0.4375f );
-		iq = ( int ) t;
-		if ( iq > 31 )
-			iq = 31;
-		ix[i] = ( int ) ( t - quant_table[iq] );
-		if ( ix[i] > ixmax )
-			ixmax = ix[i];
-	}
+    igain = look_34igain[gsf];
+    ixmax = 0;
+    for ( i = 0; i < n; i++ )
+    {
+        t = igain * x34[i] + ( 0.5f - 0.4375f );
+        iq = ( int ) t;
+        if ( iq > 31 )
+            iq = 31;
+        if ( iq < 0 )
+            iq = 0;
+        ix[i] = ( int ) ( t - quant_table[iq] );
+        if ( ix[i] > ixmax )
+            ixmax = ix[i];
+    }
 
 	quant_table[0] = save;
 
